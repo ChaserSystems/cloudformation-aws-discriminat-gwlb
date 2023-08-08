@@ -10,8 +10,8 @@ HTTPS, TLS, SSH, SFTP micro-segmentation firewall to filter VPC egress by hostna
 
 The templates include a `Region2AMI` key under `Mappings`. This includes a map of AMI IDs to AWS Regions, and will be updated from time to time.
 
-[!IMPORTANT]
-If you wish to always run the latest version of DiscrimiNAT, please subscribe to the changes in this repository by clicking Watch -> Custom -> Releases.
+> [!IMPORTANT]\
+> If you wish to always run the latest version of DiscrimiNAT, please subscribe to the changes in this repository by clicking Watch -> Custom -> Releases.
 
 ## Documentation
 
