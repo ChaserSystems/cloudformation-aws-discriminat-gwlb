@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing, a test VM in a Private Subnet with only some FQDNs allowed on egress, and another test VM with its egress traffic being monitored & logged. Login to the test VMs by clicking Connect in the web console and choosing the Session Manager option. Then try an allowed domain name with this command: curl https://api.github.com/ . Full, self-service demo guide is at https://chasersystems.com/docs/discriminat/aws/quick-start/ .",
+  "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing, a test VM in a Private Subnet with only some FQDNs allowed on egress, and another test VM with its egress traffic being monitored & logged. Login to the test VMs by clicking Connect in the web console and choosing the Session Manager option. Then try an allowed domain name with this command: curl https://api.github.com/ . Full, self-service demo guide is at https://chasersystems.com/docs/discriminat/aws/quick-start/",
   "Mappings": {
     "Region2AMI": {
       "af-south-1": {
@@ -127,16 +127,11 @@
         "t3.small",
         "c6i.large",
         "c6i.xlarge",
-        "c6i.2xlarge",
         "c6a.large",
-        "c6a.xlarge",
-        "c6a.2xlarge",
-        "c5.large",
-        "c5.xlarge",
-        "c5.2xlarge"
+        "c6a.xlarge"
       ],
       "Default": "t3.small",
-      "Description": "The default of `t3.small` should suffice for light to medium levels of usage. Anything less than 2 CPU cores and 2 GB of RAM is not recommended. For performance testing, faster access to the Internet or for accounts with a large number of VMs (ENIs, rather), you may want to choose a machine type with more CPU cores. Valid values are `t3.small` , `c6i.large` , `c6i.xlarge` , `c6i.2xlarge` , `c6a.large` , `c6a.xlarge` , `c6a.2xlarge` , `c5.large` , `c5.xlarge` , `c5.2xlarge` .",
+      "Description": "The default of `t3.small` should suffice for light to medium levels of usage. Anything less than 2 CPU cores and 2 GB of RAM is not recommended. For performance testing, faster access to the Internet or for accounts with a large number of VMs (ENIs, rather), you may want to choose a machine type with dedicated CPU cores. Valid values are `t3.small` , `c6i.large` , `c6i.xlarge` , `c6a.large` , `c6a.xlarge` .",
       "Type": "String"
     },
     "MyAppHTTPSAllowlist": {
@@ -866,7 +861,7 @@
         "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
-            "Description": "discriminat:see-thru:2023-12-31",
+            "Description": "discriminat:see-thru:2024-12-31",
             "FromPort": 443,
             "IpProtocol": "tcp",
             "ToPort": 443
