@@ -1,100 +1,108 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
+  "Description": "A pair of BYOL DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
   "Mappings": {
     "Region2AMI": {
       "af-south-1": {
-        "x86": "ami-07afb358129d5bb69"
+        "x86": "ami-09ab1449cf5119cd5"
       },
       "ap-east-1": {
-        "x86": "ami-0f11e723264118c12"
+        "x86": "ami-048984870a5ebd30f"
       },
       "ap-northeast-1": {
-        "x86": "ami-0d62050e9e0309733"
+        "x86": "ami-0c55d896692e55d37"
       },
       "ap-northeast-2": {
-        "x86": "ami-0de4b47e8a363e6db"
+        "x86": "ami-0556f355bb74e3240"
       },
       "ap-northeast-3": {
-        "x86": "ami-01fbb135d2f720c18"
+        "x86": "ami-0b3ed9c4fce593434"
       },
       "ap-south-1": {
-        "x86": "ami-0380ff9fdfeb276e3"
+        "x86": "ami-009286a4c07ca5b4a"
       },
       "ap-south-2": {
-        "x86": "ami-0cc2249f91fd16871"
+        "x86": "ami-0db52de1a0cdc65a8"
       },
       "ap-southeast-1": {
-        "x86": "ami-0abf21e9ae45d31c5"
+        "x86": "ami-0296bc6a5bc09b766"
       },
       "ap-southeast-2": {
-        "x86": "ami-0bab20168ff84ee43"
+        "x86": "ami-0eaec55f699b3c315"
       },
       "ap-southeast-3": {
-        "x86": "ami-00c6f99bb1ed10eb8"
+        "x86": "ami-0e2865315f14dd536"
       },
       "ap-southeast-4": {
-        "x86": "ami-0af8a5d7ea9e3a9d5"
+        "x86": "ami-0195476e422eed31c"
       },
       "ca-central-1": {
-        "x86": "ami-0beeb633dc3871a39"
+        "x86": "ami-0272eac1b68edeb2b"
       },
       "ca-west-1": {
-        "x86": "ami-06a7861d1eb5b883c"
+        "x86": "ami-0d69875ecbe3be81d"
       },
       "eu-central-1": {
-        "x86": "ami-0d46eab63f81ab629"
+        "x86": "ami-03b20dd5861758541"
       },
       "eu-central-2": {
-        "x86": "ami-0cfff68909089db65"
+        "x86": "ami-0db857810d65d4717"
       },
       "eu-north-1": {
-        "x86": "ami-03077540d52a06bba"
+        "x86": "ami-0e5a4fadb662ad62e"
       },
       "eu-south-1": {
-        "x86": "ami-08350f5acb1e5c575"
+        "x86": "ami-09d5823806b4d1922"
       },
       "eu-south-2": {
-        "x86": "ami-0986d878133aabf4e"
+        "x86": "ami-01873cc6c9f634af3"
       },
       "eu-west-1": {
-        "x86": "ami-0270507387ba4a340"
+        "x86": "ami-0299f3a553d32fffb"
       },
       "eu-west-2": {
-        "x86": "ami-0d852ecaa288e339e"
+        "x86": "ami-0da8f74fc6cabeac2"
       },
       "eu-west-3": {
-        "x86": "ami-0606384d757669a6b"
+        "x86": "ami-02194f14fe28a3aa4"
       },
       "il-central-1": {
-        "x86": "ami-02fb669c16ef3aca2"
+        "x86": "ami-0f7ce0bc92ac51b93"
       },
       "me-central-1": {
-        "x86": "ami-0ca2c9f482ae332cd"
+        "x86": "ami-0f7074196d811b3a9"
       },
       "me-south-1": {
-        "x86": "ami-0f86e07762e8b8041"
+        "x86": "ami-0d27352843eb4710d"
       },
       "sa-east-1": {
-        "x86": "ami-091600ae65cecdf94"
+        "x86": "ami-0e01acdf3c6e9c357"
       },
       "us-east-1": {
-        "x86": "ami-0e4d76d396108accd"
+        "x86": "ami-0bc8ccdb5c2044773"
       },
       "us-east-2": {
-        "x86": "ami-0281e732741bfc70e"
+        "x86": "ami-0444f2fa1d2cf758a"
       },
       "us-west-1": {
-        "x86": "ami-0015d690119778271"
+        "x86": "ami-0c14d6d68ecf67ae4"
       },
       "us-west-2": {
-        "x86": "ami-02a1107afc4007a78"
+        "x86": "ami-0c1d1e22b85ede5f8"
       }
     }
   },
   "Metadata": {
     "AWS::CloudFormation::Interface": {
       "ParameterGroups": [
+        {
+          "Label": {
+            "default": "REQUIRED"
+          },
+          "Parameters": [
+            "BYOL"
+          ]
+        },
         {
           "Label": {
             "default": "OPTIONAL Example VPC Network Configuration"
@@ -119,6 +127,12 @@
     }
   },
   "Parameters": {
+    "BYOL": {
+      "Description": "Supply the licence key as supplied by Chaser Systems here.",
+      "MinLength": 1,
+      "NoEcho": true,
+      "Type": "String"
+    },
     "InstanceType": {
       "AllowedValues": [
         "t3.small",
@@ -411,7 +425,12 @@
                 }
               ]
             }
-          ]
+          ],
+          "UserData": {
+            "Fn::Base64": {
+              "Fn::Sub": "#cloud-config\nwrite_files:\n- encoding: base64\n  path: /etc/chaser/licence-key.der\n  permissions: 0404\n  content: ${BYOL}\n"
+            }
+          }
         },
         "LaunchTemplateName": {
           "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
