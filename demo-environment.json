@@ -4,91 +4,91 @@
   "Mappings": {
     "Region2AMI": {
       "af-south-1": {
-        "x86": "ami-0f7fffa9a7a2761ab"
+        "x86": "ami-0e40a515e2cd43430"
       },
       "ap-east-1": {
-        "x86": "ami-058aad1cea0deeddc"
+        "x86": "ami-0baec0aa5a2ff21f4"
       },
       "ap-northeast-1": {
-        "x86": "ami-08a3be53de69940b2"
+        "x86": "ami-0b0514499db222499"
       },
       "ap-northeast-2": {
-        "x86": "ami-07aa47fd2b22d6b59"
+        "x86": "ami-0bf675309b1a98fb4"
       },
       "ap-northeast-3": {
-        "x86": "ami-02e5568c54c15e57b"
+        "x86": "ami-0218e55d489cc76b6"
       },
       "ap-south-1": {
-        "x86": "ami-051ee4e5e83be92b0"
+        "x86": "ami-0681f075dae8f9a3f"
       },
       "ap-south-2": {
-        "x86": "ami-048fe42a81d2e0b0b"
+        "x86": "ami-0271e494938b52e35"
       },
       "ap-southeast-1": {
-        "x86": "ami-013296cabe928cd52"
+        "x86": "ami-0d6b8d2d746f94e07"
       },
       "ap-southeast-2": {
-        "x86": "ami-08a4cade1cfc7aa6f"
+        "x86": "ami-0a1e64103ca5a841e"
       },
       "ap-southeast-3": {
-        "x86": "ami-0e4b17b7c97e1ef7e"
+        "x86": "ami-0cc6d4622ee4823ac"
       },
       "ap-southeast-4": {
-        "x86": "ami-05497b17fe846ba9c"
+        "x86": "ami-0102df41ce6055cc8"
       },
       "ca-central-1": {
-        "x86": "ami-0a799f01f8b123f35"
+        "x86": "ami-0593dc1418e5939a6"
       },
       "ca-west-1": {
-        "x86": "ami-0c11279880e3fb1d6"
+        "x86": "ami-03f8cfd0ea1642452"
       },
       "eu-central-1": {
-        "x86": "ami-0b7780efaa59e7180"
+        "x86": "ami-0d9811407e52bf28b"
       },
       "eu-central-2": {
-        "x86": "ami-04287b92f23ed466c"
+        "x86": "ami-0a1123bb519ef9784"
       },
       "eu-north-1": {
-        "x86": "ami-0b5ad2c948991455f"
+        "x86": "ami-023650c166c31dea8"
       },
       "eu-south-1": {
-        "x86": "ami-093e860b32af7c656"
+        "x86": "ami-0492c976e91272f41"
       },
       "eu-south-2": {
-        "x86": "ami-00d5ef1707afec66c"
+        "x86": "ami-079834c0be262a200"
       },
       "eu-west-1": {
-        "x86": "ami-016f6f897e659f0eb"
+        "x86": "ami-07ae062b59421b2af"
       },
       "eu-west-2": {
-        "x86": "ami-079941f1d8b068ace"
+        "x86": "ami-0d1c525777924dd33"
       },
       "eu-west-3": {
-        "x86": "ami-099f5bb2e761ff6fb"
+        "x86": "ami-00ad485e18f321147"
       },
       "il-central-1": {
-        "x86": "ami-06d05cbfb8fe196ad"
+        "x86": "ami-07ab20a4b4b0a7a11"
       },
       "me-central-1": {
-        "x86": "ami-0bf0b71d941bea98d"
+        "x86": "ami-0338ca519d907551c"
       },
       "me-south-1": {
-        "x86": "ami-08346b6742f685f38"
+        "x86": "ami-0c159909c23b7e959"
       },
       "sa-east-1": {
-        "x86": "ami-0cd7c25df12802417"
+        "x86": "ami-0b0c9d5d2d194f7eb"
       },
       "us-east-1": {
-        "x86": "ami-0a51bfd01cf5af873"
+        "x86": "ami-0dffa6ae454857cf3"
       },
       "us-east-2": {
-        "x86": "ami-0e2482b7be3f524cb"
+        "x86": "ami-0e261e58375c0c955"
       },
       "us-west-1": {
-        "x86": "ami-05ed3aaacd7efa552"
+        "x86": "ami-09062d1cfa1d854b8"
       },
       "us-west-2": {
-        "x86": "ami-0f9ebb3e982b8e654"
+        "x86": "ami-09bc720f322d21fdd"
       }
     }
   },
@@ -310,6 +310,15 @@
             },
             {
               "Action": [
+                "ssm:GetParameter"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:ssm:*:*:parameter/DiscrimiNAT*"
+              ]
+            },
+            {
+              "Action": [
                 "ec2:DescribeNetworkInterfaces",
                 "ec2:DescribeSecurityGroups",
                 "ec2:DescribeAddresses"
@@ -473,6 +482,15 @@
         "Type": "gateway"
       },
       "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    },
+    "DiscrimiNATPreferences": {
+      "Properties": {
+        "Name": "DiscrimiNAT",
+        "Tier": "Standard",
+        "Type": "String",
+        "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": null,\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
+      },
+      "Type": "AWS::SSM::Parameter"
     },
     "DiscrimiNATRouteAssociation1": {
       "Properties": {
@@ -867,7 +885,7 @@
         "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
-            "Description": "discriminat:see-thru:2024-12-31",
+            "Description": "discriminat:see-thru:2025-12-31",
             "FromPort": 443,
             "IpProtocol": "tcp",
             "ToPort": 443
