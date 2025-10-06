@@ -419,6 +419,15 @@
                   "Value": "self-manage"
                 }
               ]
+            },
+            {
+              "ResourceType": "network-interface",
+              "Tags": [
+                {
+                  "Key": "discriminat",
+                  "Value": "self-manage"
+                }
+              ]
             }
           ]
         },
@@ -469,7 +478,7 @@
         "Name": "DiscrimiNAT",
         "Tier": "Standard",
         "Type": "String",
-        "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": null,\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
+        "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": \"2026-01-19\",\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
       },
       "Type": "AWS::SSM::Parameter"
     },
@@ -651,6 +660,21 @@
         ]
       },
       "Type": "AWS::EC2::VPCEndpointService"
+    },
+    "DiscrimiNATsSyncIngressRule": {
+      "Properties": {
+        "Description": "DiscrimiNATs sync",
+        "FromPort": 1042,
+        "GroupId": {
+          "Ref": "DiscrimiNATSecurityGroup"
+        },
+        "IpProtocol": "udp",
+        "SourceSecurityGroupId": {
+          "Ref": "DiscrimiNATSecurityGroup"
+        },
+        "ToPort": 1042
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
     },
     "EC2VPCEndpoint": {
       "Properties": {
