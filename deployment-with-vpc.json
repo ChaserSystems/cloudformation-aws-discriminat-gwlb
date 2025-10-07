@@ -1,8 +1,111 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
+  "Conditions": {
+    "IsBYOL": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "BYOL"
+            },
+            ""
+          ]
+        }
+      ]
+    }
+  },
   "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
   "Mappings": {
-    "Region2AMI": {
+    "Region2ByolAmi": {
+      "af-south-1": {
+        "x86": "ami-0f7f9100dd8ad5bd4"
+      },
+      "ap-east-1": {
+        "x86": "ami-0ed2fd78d3818b2ea"
+      },
+      "ap-northeast-1": {
+        "x86": "ami-0b9b4ce8a07ec37c3"
+      },
+      "ap-northeast-2": {
+        "x86": "ami-01f048494f91d1b43"
+      },
+      "ap-northeast-3": {
+        "x86": "ami-01442c24661c4889b"
+      },
+      "ap-south-1": {
+        "x86": "ami-0e955811c950713e2"
+      },
+      "ap-south-2": {
+        "x86": "ami-0360a72c241a08740"
+      },
+      "ap-southeast-1": {
+        "x86": "ami-054898abb63d4fff0"
+      },
+      "ap-southeast-2": {
+        "x86": "ami-0368a7cd03614c0ff"
+      },
+      "ap-southeast-3": {
+        "x86": "ami-04b8676406fc5ebd3"
+      },
+      "ap-southeast-4": {
+        "x86": "ami-0debbfa3cba4a23b3"
+      },
+      "ca-central-1": {
+        "x86": "ami-0fe5ec6b137403af5"
+      },
+      "ca-west-1": {
+        "x86": "ami-01b94c1be72b1eab3"
+      },
+      "eu-central-1": {
+        "x86": "ami-0a5fc03be8035014b"
+      },
+      "eu-central-2": {
+        "x86": "ami-0269c56ddf91c7de9"
+      },
+      "eu-north-1": {
+        "x86": "ami-0059536c52a494ba7"
+      },
+      "eu-south-1": {
+        "x86": "ami-0763a8ba6461246b2"
+      },
+      "eu-south-2": {
+        "x86": "ami-05b409afad437507f"
+      },
+      "eu-west-1": {
+        "x86": "ami-07363769220bf2dbd"
+      },
+      "eu-west-2": {
+        "x86": "ami-0e2ff79839fa97cbd"
+      },
+      "eu-west-3": {
+        "x86": "ami-06e378e251cda623d"
+      },
+      "il-central-1": {
+        "x86": "ami-0f89ae6ac6d6c2659"
+      },
+      "me-central-1": {
+        "x86": "ami-06f6bd4c1fbcc305b"
+      },
+      "me-south-1": {
+        "x86": "ami-061ef5f10ecde13f1"
+      },
+      "sa-east-1": {
+        "x86": "ami-09312df7ac7aab15d"
+      },
+      "us-east-1": {
+        "x86": "ami-0d42c4bb0d6c5b50e"
+      },
+      "us-east-2": {
+        "x86": "ami-013146e75f7d887d1"
+      },
+      "us-west-1": {
+        "x86": "ami-0ff7654fb41915a29"
+      },
+      "us-west-2": {
+        "x86": "ami-081abdd617f0cbe56"
+      }
+    },
+    "Region2PaygAmi": {
       "af-south-1": {
         "x86": "ami-060515e90c24f703d"
       },
@@ -119,6 +222,11 @@
     }
   },
   "Parameters": {
+    "BYOL": {
+      "Description": "Supply the licence key, if supplied by Chaser Systems for you, here.",
+      "NoEcho": true,
+      "Type": "String"
+    },
     "InstanceType": {
       "AllowedValues": [
         "t3.small",
@@ -228,7 +336,12 @@
           }
         ]
       },
-      "Type": "AWS::AutoScaling::AutoScalingGroup"
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinActiveInstancesPercent": 50
+        }
+      }
     },
     "DiscrimiNATAutoScalingLifecycleHook": {
       "Properties": {
@@ -381,12 +494,26 @@
             }
           },
           "ImageId": {
-            "Fn::FindInMap": [
-              "Region2AMI",
+            "Fn::If": [
+              "IsBYOL",
               {
-                "Ref": "AWS::Region"
+                "Fn::FindInMap": [
+                  "Region2ByolAmi",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "x86"
+                ]
               },
-              "x86"
+              {
+                "Fn::FindInMap": [
+                  "Region2PaygAmi",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "x86"
+                ]
+              }
             ]
           },
           "InstanceType": {
@@ -429,7 +556,20 @@
                 }
               ]
             }
-          ]
+          ],
+          "UserData": {
+            "Fn::If": [
+              "IsBYOL",
+              {
+                "Fn::Base64": {
+                  "Fn::Sub": "#cloud-config\nwrite_files:\n- encoding: base64\n  path: /etc/chaser/licence-key.der\n  permissions: 0404\n  content: ${BYOL}\n"
+                }
+              },
+              {
+                "Ref": "AWS::NoValue"
+              }
+            ]
+          }
         },
         "LaunchTemplateName": {
           "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
