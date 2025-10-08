@@ -1,0 +1,313 @@
+{
+  "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing, a test VM in a Private Subnet with only some FQDNs allowed on egress, and another test VM with its egress traffic being monitored & logged. Login to the test VMs by clicking Connect in the web console and choosing the Session Manager option. Then try an allowed domain name with this command: curl https://api.github.com/ . Full, self-service demo guide is at https://chasersystems.com/docs/discriminat/aws/quick-start/",
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "Example Application Egress Allowlist Configuration"
+          },
+          "Parameters": [
+            "MyAppHTTPSAllowlist",
+            "MyAppSSHAllowlist"
+          ]
+        }
+      ]
+    }
+  },
+  "Parameters": {
+    "MyAppHTTPSAllowlist": {
+      "Default": "api.github.com,icanhazdadjoke.com",
+      "Description": "List of FQDNs to allow over HTTPS, in comma-separated format without whitespace",
+      "Type": "String"
+    },
+    "MyAppSSHAllowlist": {
+      "Default": "itcsubmit.wustl.edu",
+      "Description": "List of FQDNs to allow over SSH, in comma-separated format without whitespace",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "DiscrimiNATPreferences": {
+      "Properties": {
+        "Name": "DiscrimiNAT",
+        "Tier": "Standard",
+        "Type": "String",
+        "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": null,\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
+      },
+      "Type": "AWS::SSM::Parameter"
+    },
+    "MyAppHTTPSSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "MyApp HTTPS Egress",
+        "GroupName": {
+          "Fn::Sub": "MyApp-HTTPS-Egress-${AWS::StackName}"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "discriminat:tls:",
+                  {
+                    "Ref": "MyAppHTTPSAllowlist"
+                  }
+                ]
+              ]
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyApp-HTTPS-Egress-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "MyAppIAMInstanceProfile": {
+      "Properties": {
+        "InstanceProfileName": {
+          "Fn::Sub": "MyApp-${AWS::StackName}"
+        },
+        "Roles": [
+          {
+            "Ref": "MyAppIAMRole"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::InstanceProfile"
+    },
+    "MyAppIAMRole": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        ],
+        "RoleName": {
+          "Fn::Sub": "MyApp-${AWS::StackName}"
+        }
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "MyAppMonitoredSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "MyApp Monitored Egress",
+        "GroupName": {
+          "Fn::Sub": "MyApp-Monitored-Egress-${AWS::StackName}"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "discriminat:see-thru:2026-01-19",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyApp-Monitored-Egress-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "MyAppSSHSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "MyApp SSH Egress",
+        "GroupName": {
+          "Fn::Sub": "MyApp-SSH-Egress-${AWS::StackName}"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "discriminat:ssh:",
+                  {
+                    "Ref": "MyAppSSHAllowlist"
+                  }
+                ]
+              ]
+            },
+            "FromPort": 22,
+            "IpProtocol": "tcp",
+            "ToPort": 22
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyApp-SSH-Egress-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "MyAppSSMSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "MyApp AWS-SSM Egress",
+        "GroupName": {
+          "Fn::Sub": "MyApp-AWS-SSM-Egress-${AWS::StackName}"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "discriminat:tls:",
+                  "ssm.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".amazonaws.com",
+                  ",",
+                  "ssmmessages.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".amazonaws.com",
+                  ",",
+                  "ec2messages.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".amazonaws.com"
+                ]
+              ]
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyApp-AWS-SSM-Egress-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "MyMonitoredApp": {
+      "DependsOn": [
+        "MyAppIAMInstanceProfile"
+      ],
+      "Properties": {
+        "IamInstanceProfile": {
+          "Fn::Sub": "MyApp-${AWS::StackName}"
+        },
+        "ImageId": "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}",
+        "InstanceType": "t3.small",
+        "SecurityGroupIds": [
+          {
+            "Ref": "MyAppHTTPSSecurityGroup"
+          },
+          {
+            "Ref": "MyAppMonitoredSecurityGroup"
+          },
+          {
+            "Ref": "MyAppSSMSecurityGroup"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "SubnetPrivate2"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyMonitoredApp-${AWS::StackName}"
+            }
+          }
+        ],
+        "UserData": "I2Nsb3VkLWNvbmZpZwpydW5jbWQ6CiAgLSBbImhvc3RuYW1lIiwgIm15LW1vbml0b3JlZC1hcHAiXQogIC0gWwogICAgICAiL3Vzci9iaW4vc2VkIiwKICAgICAgIi1pIiwKICAgICAgIjE4aUVudmlyb25tZW50PUVOVj0vb3B0L3N3aXRjaC1zaGVsbC5zaCIsCiAgICAgICIvdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbS9hbWF6b24tc3NtLWFnZW50LnNlcnZpY2UiLAogICAgXQogIC0gWyJzeXN0ZW1jdGwiLCAiZGFlbW9uLXJlbG9hZCJdCiAgLSBbInN5c3RlbWN0bCIsICJyZXN0YXJ0IiwgImFtYXpvbi1zc20tYWdlbnQiXQp3cml0ZV9maWxlczoKICAtIGVuY29kaW5nOiBiNjQKICAgIGNvbnRlbnQ6IGFXWWdXeUFpSkhzd2ZTSWdQU0FpYzJnaUlGMDdJSFJvWlc0S0lDQmxlR1ZqSUM5MWMzSXZZbWx1TDJKaGMyZ0tabWtLCiAgICBwYXRoOiAvb3B0L3N3aXRjaC1zaGVsbC5zaAo="
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "MySecuredApp": {
+      "DependsOn": [
+        "MyAppIAMInstanceProfile"
+      ],
+      "Properties": {
+        "IamInstanceProfile": {
+          "Fn::Sub": "MyApp-${AWS::StackName}"
+        },
+        "ImageId": "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}",
+        "InstanceType": "t3.small",
+        "SecurityGroupIds": [
+          {
+            "Ref": "MyAppHTTPSSecurityGroup"
+          },
+          {
+            "Ref": "MyAppSSHSecurityGroup"
+          },
+          {
+            "Ref": "MyAppSSMSecurityGroup"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "SubnetPrivate1"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MySecuredApp-${AWS::StackName}"
+            }
+          }
+        ],
+        "UserData": "I2Nsb3VkLWNvbmZpZwpydW5jbWQ6CiAgLSBbImhvc3RuYW1lIiwgIm15LXNlY3VyZWQtYXBwIl0KICAtIFsKICAgICAgIi91c3IvYmluL3NlZCIsCiAgICAgICItaSIsCiAgICAgICIxOGlFbnZpcm9ubWVudD1FTlY9L29wdC9zd2l0Y2gtc2hlbGwuc2giLAogICAgICAiL3Vzci9saWIvc3lzdGVtZC9zeXN0ZW0vYW1hem9uLXNzbS1hZ2VudC5zZXJ2aWNlIiwKICAgIF0KICAtIFsic3lzdGVtY3RsIiwgImRhZW1vbi1yZWxvYWQiXQogIC0gWyJzeXN0ZW1jdGwiLCAicmVzdGFydCIsICJhbWF6b24tc3NtLWFnZW50Il0Kd3JpdGVfZmlsZXM6CiAgLSBlbmNvZGluZzogYjY0CiAgICBjb250ZW50OiBhV1lnV3lBaUpIc3dmU0lnUFNBaWMyZ2lJRjA3SUhSb1pXNEtJQ0JsZUdWaklDOTFjM0l2WW1sdUwySmhjMmdLWm1rSwogICAgcGF0aDogL29wdC9zd2l0Y2gtc2hlbGwuc2gK"
+      },
+      "Type": "AWS::EC2::Instance"
+    }
+  }
+}

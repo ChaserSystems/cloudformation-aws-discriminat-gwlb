@@ -1,8 +1,30 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "A pair of BYOL DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
+  "Conditions": {
+    "IsBYOL": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "BYOL"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "IsNewEIPs": {
+      "Fn::Equals": [
+        {
+          "Ref": "NewEIPs"
+        },
+        "yes"
+      ]
+    }
+  },
+  "Description": "A trio of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
   "Mappings": {
-    "Region2AMI": {
+    "Region2ByolAmi": {
       "af-south-1": {
         "x86": "ami-0f7f9100dd8ad5bd4"
       },
@@ -90,6 +112,95 @@
       "us-west-2": {
         "x86": "ami-081abdd617f0cbe56"
       }
+    },
+    "Region2PaygAmi": {
+      "af-south-1": {
+        "x86": "ami-060515e90c24f703d"
+      },
+      "ap-east-1": {
+        "x86": "ami-09b0961eceaf95070"
+      },
+      "ap-northeast-1": {
+        "x86": "ami-04ab8942f35d42764"
+      },
+      "ap-northeast-2": {
+        "x86": "ami-02d93aa8fb8a96433"
+      },
+      "ap-northeast-3": {
+        "x86": "ami-0f48bf0de3083d6e1"
+      },
+      "ap-south-1": {
+        "x86": "ami-01d8617c889aeaf1c"
+      },
+      "ap-south-2": {
+        "x86": "ami-0d22e0a125f388fa6"
+      },
+      "ap-southeast-1": {
+        "x86": "ami-0a230e5a000ab5e5d"
+      },
+      "ap-southeast-2": {
+        "x86": "ami-0f0eed1ccebe42f9a"
+      },
+      "ap-southeast-3": {
+        "x86": "ami-0da2ad24ef314607a"
+      },
+      "ap-southeast-4": {
+        "x86": "ami-06880049cb9e267ec"
+      },
+      "ca-central-1": {
+        "x86": "ami-0be6fd4c1752285d8"
+      },
+      "ca-west-1": {
+        "x86": "ami-076c13bcc1d337eb2"
+      },
+      "eu-central-1": {
+        "x86": "ami-091eb9b8fcde40257"
+      },
+      "eu-central-2": {
+        "x86": "ami-0e7b3f48d3bcb9747"
+      },
+      "eu-north-1": {
+        "x86": "ami-0b8464f6e4d950465"
+      },
+      "eu-south-1": {
+        "x86": "ami-0b6cb1e02f107d06b"
+      },
+      "eu-south-2": {
+        "x86": "ami-0666251831f7281de"
+      },
+      "eu-west-1": {
+        "x86": "ami-02753b109229f66d8"
+      },
+      "eu-west-2": {
+        "x86": "ami-0326169eb4f2a60b1"
+      },
+      "eu-west-3": {
+        "x86": "ami-092b3ca575b316f28"
+      },
+      "il-central-1": {
+        "x86": "ami-0b8fb54582d7166df"
+      },
+      "me-central-1": {
+        "x86": "ami-068090c04a39585ba"
+      },
+      "me-south-1": {
+        "x86": "ami-0956536e47043c74f"
+      },
+      "sa-east-1": {
+        "x86": "ami-0f349747494a28a9d"
+      },
+      "us-east-1": {
+        "x86": "ami-0b515d5bc777c1d3b"
+      },
+      "us-east-2": {
+        "x86": "ami-0ef6f05b33ffec9ac"
+      },
+      "us-west-1": {
+        "x86": "ami-023ad01fa2e2cebac"
+      },
+      "us-west-2": {
+        "x86": "ami-0fa74208e1f09990d"
+      }
     }
   },
   "Metadata": {
@@ -97,22 +208,17 @@
       "ParameterGroups": [
         {
           "Label": {
-            "default": "REQUIRED"
-          },
-          "Parameters": [
-            "BYOL"
-          ]
-        },
-        {
-          "Label": {
             "default": "OPTIONAL Example VPC Network Configuration"
           },
           "Parameters": [
+            "NewEIPs",
             "VpcCidr",
             "PrivateSubnetAZ1",
             "PrivateSubnetAZ2",
+            "PrivateSubnetAZ3",
             "PublicSubnetAZ1",
-            "PublicSubnetAZ2"
+            "PublicSubnetAZ2",
+            "PublicSubnetAZ3"
           ]
         },
         {
@@ -120,7 +226,8 @@
             "default": "OPTIONAL DiscrimiNAT Advanced Configuration"
           },
           "Parameters": [
-            "InstanceType"
+            "InstanceType",
+            "BYOL"
           ]
         }
       ]
@@ -128,8 +235,7 @@
   },
   "Parameters": {
     "BYOL": {
-      "Description": "Supply the licence key as supplied by Chaser Systems here.",
-      "MinLength": 1,
+      "Description": "Supply the licence key, if supplied by Chaser Systems for you, here.",
       "NoEcho": true,
       "Type": "String"
     },
@@ -143,6 +249,15 @@
       ],
       "Default": "t3.small",
       "Description": "The default of `t3.small` should suffice for light to medium levels of usage. Anything less than 2 CPU cores and 2 GB of RAM is not recommended. For performance testing, faster access to the Internet or for accounts with a large number of VMs (ENIs, rather), you may want to choose a machine type with dedicated CPU cores. Valid values are `t3.small` , `c6i.large` , `c6i.xlarge` , `c6a.large` , `c6a.xlarge` .",
+      "Type": "String"
+    },
+    "NewEIPs": {
+      "AllowedValues": [
+        "yes",
+        "no"
+      ],
+      "Default": "yes",
+      "Description": "Allocate new Elastic IPs for NAT outbound. Select `no` if you want to use previously allocated EIPs.",
       "Type": "String"
     },
     "PrivateSubnetAZ1": {
@@ -159,24 +274,38 @@
       "Description": "The Private Subnet for Availability Zone 2. If going with the example layout, try 10.10.2.0/23 .",
       "Type": "String"
     },
+    "PrivateSubnetAZ3": {
+      "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
+      "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
+      "Default": "10.10.4.0/23",
+      "Description": "The Private Subnet for Availability Zone 2. If going with the example layout, try 10.10.2.0/23 .",
+      "Type": "String"
+    },
     "PublicSubnetAZ1": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.6.0/25",
+      "Default": "10.10.10.0/24",
       "Description": "The Public Subnet for Availability Zone 1. If going with the example layout, try 10.10.6.0/25 .",
       "Type": "String"
     },
     "PublicSubnetAZ2": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.6.128/25",
+      "Default": "10.10.11.0/24",
+      "Description": "The Public Subnet for Availability Zone 2. If going with the example layout, try 10.10.6.128/25 .",
+      "Type": "String"
+    },
+    "PublicSubnetAZ3": {
+      "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
+      "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
+      "Default": "10.10.12.0/24",
       "Description": "The Public Subnet for Availability Zone 2. If going with the example layout, try 10.10.6.128/25 .",
       "Type": "String"
     },
     "VpcCidr": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.0.0/21",
+      "Default": "10.10.0.0/20",
       "Description": "The VPC-level CIDR block to deploy in this region. If going with the example layout, try 10.10.0.0/21 .",
       "Type": "String"
     }
@@ -188,7 +317,7 @@
           "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
         },
         "Cooldown": "1",
-        "DesiredCapacity": "2",
+        "DesiredCapacity": "3",
         "HealthCheckGracePeriod": 0,
         "HealthCheckType": "ELB",
         "LaunchTemplate": {
@@ -202,7 +331,7 @@
             ]
           }
         },
-        "MaxSize": "3",
+        "MaxSize": "4",
         "MetricsCollection": [
           {
             "Granularity": "1Minute",
@@ -215,7 +344,7 @@
             ]
           }
         ],
-        "MinSize": "2",
+        "MinSize": "3",
         "Tags": [
           {
             "Key": "Name",
@@ -239,10 +368,18 @@
           },
           {
             "Ref": "SubnetPublic2"
+          },
+          {
+            "Ref": "SubnetPublic3"
           }
         ]
       },
-      "Type": "AWS::AutoScaling::AutoScalingGroup"
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinActiveInstancesPercent": 50
+        }
+      }
     },
     "DiscrimiNATAutoScalingLifecycleHook": {
       "Properties": {
@@ -395,12 +532,26 @@
             }
           },
           "ImageId": {
-            "Fn::FindInMap": [
-              "Region2AMI",
+            "Fn::If": [
+              "IsBYOL",
               {
-                "Ref": "AWS::Region"
+                "Fn::FindInMap": [
+                  "Region2ByolAmi",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "x86"
+                ]
               },
-              "x86"
+              {
+                "Fn::FindInMap": [
+                  "Region2PaygAmi",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "x86"
+                ]
+              }
             ]
           },
           "InstanceType": {
@@ -433,12 +584,29 @@
                   "Value": "self-manage"
                 }
               ]
+            },
+            {
+              "ResourceType": "network-interface",
+              "Tags": [
+                {
+                  "Key": "discriminat",
+                  "Value": "self-manage"
+                }
+              ]
             }
           ],
           "UserData": {
-            "Fn::Base64": {
-              "Fn::Sub": "#cloud-config\nwrite_files:\n- encoding: base64\n  path: /etc/chaser/licence-key.der\n  permissions: 0404\n  content: ${BYOL}\n"
-            }
+            "Fn::If": [
+              "IsBYOL",
+              {
+                "Fn::Base64": {
+                  "Fn::Sub": "#cloud-config\nwrite_files:\n- encoding: base64\n  path: /etc/chaser/licence-key.der\n  permissions: 0404\n  content: ${BYOL}\n"
+                }
+              },
+              {
+                "Ref": "AWS::NoValue"
+              }
+            ]
           }
         },
         "LaunchTemplateName": {
@@ -477,6 +645,9 @@
           },
           {
             "Ref": "SubnetPrivate2"
+          },
+          {
+            "Ref": "SubnetPrivate3"
           }
         ],
         "Type": "gateway"
@@ -488,7 +659,7 @@
         "Name": "DiscrimiNAT",
         "Tier": "Standard",
         "Type": "String",
-        "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": null,\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
+        "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": \"2026-01-19\",\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
       },
       "Type": "AWS::SSM::Parameter"
     },
@@ -510,6 +681,17 @@
         },
         "SubnetId": {
           "Ref": "SubnetPrivate2"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "DiscrimiNATRouteAssociation3": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable3"
+        },
+        "SubnetId": {
+          "Ref": "SubnetPrivate3"
         }
       },
       "Type": "AWS::EC2::SubnetRouteTableAssociation"
@@ -660,6 +842,35 @@
       },
       "Type": "AWS::EC2::VPCEndpoint"
     },
+    "DiscrimiNATVPCEndpoint3": {
+      "Properties": {
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.vpce.",
+              {
+                "Ref": "AWS::Region"
+              },
+              ".",
+              {
+                "Ref": "DiscrimiNATVPCEndpointService"
+              }
+            ]
+          ]
+        },
+        "SubnetIds": [
+          {
+            "Ref": "SubnetPrivate3"
+          }
+        ],
+        "VpcEndpointType": "GatewayLoadBalancer",
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::VPCEndpoint"
+    },
     "DiscrimiNATVPCEndpointService": {
       "Properties": {
         "AcceptanceRequired": false,
@@ -670,6 +881,21 @@
         ]
       },
       "Type": "AWS::EC2::VPCEndpointService"
+    },
+    "DiscrimiNATsSyncIngressRule": {
+      "Properties": {
+        "Description": "DiscrimiNATs sync",
+        "FromPort": 1042,
+        "GroupId": {
+          "Ref": "DiscrimiNATSecurityGroup"
+        },
+        "IpProtocol": "udp",
+        "SourceSecurityGroupId": {
+          "Ref": "DiscrimiNATSecurityGroup"
+        },
+        "ToPort": 1042
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
     },
     "EC2VPCEndpoint": {
       "Properties": {
@@ -697,6 +923,9 @@
           },
           {
             "Ref": "SubnetPrivate2"
+          },
+          {
+            "Ref": "SubnetPrivate3"
           }
         ],
         "VpcEndpointType": "Interface",
@@ -707,6 +936,7 @@
       "Type": "AWS::EC2::VPCEndpoint"
     },
     "EIP1": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
@@ -722,6 +952,7 @@
       "Type": "AWS::EC2::EIP"
     },
     "EIP2": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
@@ -737,6 +968,23 @@
       "Type": "AWS::EC2::EIP"
     },
     "EIP3": {
+      "Condition": "IsNewEIPs",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "discriminat",
+            "Value": "some-comment"
+          },
+          {
+            "Key": "Name",
+            "Value": "egress-ip-reserved"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::EIP"
+    },
+    "EIP4": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
@@ -797,6 +1045,17 @@
       },
       "Type": "AWS::EC2::SubnetRouteTableAssociation"
     },
+    "InternetGatewayRouteAssociation3": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "SubnetPublic3"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
     "PrivateRouteTable1": {
       "Properties": {
         "Tags": [
@@ -829,6 +1088,22 @@
       },
       "Type": "AWS::EC2::RouteTable"
     },
+    "PrivateRouteTable3": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "Private3-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::RouteTable"
+    },
     "PrivateSubnet1DefaultRoute": {
       "Properties": {
         "DestinationCidrBlock": "0.0.0.0/0",
@@ -849,6 +1124,18 @@
         },
         "VpcEndpointId": {
           "Ref": "DiscrimiNATVPCEndpoint2"
+        }
+      },
+      "Type": "AWS::EC2::Route"
+    },
+    "PrivateSubnet3DefaultRoute": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable3"
+        },
+        "VpcEndpointId": {
+          "Ref": "DiscrimiNATVPCEndpoint3"
         }
       },
       "Type": "AWS::EC2::Route"
@@ -941,6 +1228,36 @@
       },
       "Type": "AWS::EC2::Subnet"
     },
+    "SubnetPrivate3": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            "2",
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "PrivateSubnetAZ3"
+        },
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "Private3-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
     "SubnetPublic1": {
       "Properties": {
         "AvailabilityZone": {
@@ -992,6 +1309,36 @@
             "Key": "Name",
             "Value": {
               "Fn::Sub": "Public2-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "SubnetPublic3": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            "2",
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "PublicSubnetAZ3"
+        },
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "Public3-${AWS::StackName}"
             }
           }
         ],
