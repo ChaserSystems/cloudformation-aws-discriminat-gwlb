@@ -12,6 +12,14 @@
           ]
         }
       ]
+    },
+    "IsNewEIPs": {
+      "Fn::Equals": [
+        {
+          "Ref": "NewEIPs"
+        },
+        "yes"
+      ]
     }
   },
   "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
@@ -203,6 +211,7 @@
             "default": "OPTIONAL Example VPC Network Configuration"
           },
           "Parameters": [
+            "NewEIPs",
             "VpcCidr",
             "PrivateSubnetAZ1",
             "PrivateSubnetAZ2",
@@ -215,7 +224,8 @@
             "default": "OPTIONAL DiscrimiNAT Advanced Configuration"
           },
           "Parameters": [
-            "InstanceType"
+            "InstanceType",
+            "BYOL"
           ]
         }
       ]
@@ -237,6 +247,15 @@
       ],
       "Default": "t3.small",
       "Description": "The default of `t3.small` should suffice for light to medium levels of usage. Anything less than 2 CPU cores and 2 GB of RAM is not recommended. For performance testing, faster access to the Internet or for accounts with a large number of VMs (ENIs, rather), you may want to choose a machine type with dedicated CPU cores. Valid values are `t3.small` , `c6i.large` , `c6i.xlarge` , `c6a.large` , `c6a.xlarge` .",
+      "Type": "String"
+    },
+    "NewEIPs": {
+      "AllowedValues": [
+        "yes",
+        "no"
+      ],
+      "Default": "yes",
+      "Description": "Allocate new Elastic IPs for NAT outbound. Select `no` if you want to use previously allocated EIPs.",
       "Type": "String"
     },
     "PrivateSubnetAZ1": {
@@ -852,6 +871,7 @@
       "Type": "AWS::EC2::VPCEndpoint"
     },
     "EIP1": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
@@ -867,6 +887,7 @@
       "Type": "AWS::EC2::EIP"
     },
     "EIP2": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
@@ -882,6 +903,7 @@
       "Type": "AWS::EC2::EIP"
     },
     "EIP3": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
