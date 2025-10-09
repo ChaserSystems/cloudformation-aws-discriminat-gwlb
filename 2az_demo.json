@@ -700,7 +700,10 @@
         "SecurityGroupIngress": [
           {
             "CidrIp": {
-              "Ref": "VpcCidr"
+              "Fn::GetAtt": [
+                "VPC",
+                "CidrBlock"
+              ]
             },
             "Description": "internet-bound TCP connections from any host in the VPC",
             "FromPort": 0,
@@ -709,7 +712,10 @@
           },
           {
             "CidrIp": {
-              "Ref": "VpcCidr"
+              "Fn::GetAtt": [
+                "VPC",
+                "CidrBlock"
+              ]
             },
             "Description": "health check service",
             "FromPort": 1042,
@@ -718,7 +724,10 @@
           },
           {
             "CidrIp": {
-              "Ref": "VpcCidr"
+              "Fn::GetAtt": [
+                "VPC",
+                "CidrBlock"
+              ]
             },
             "Description": "GENEVE encapsulation receive port from GWLB",
             "FromPort": 6081,
@@ -735,7 +744,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::SecurityGroup"
@@ -765,7 +777,10 @@
         ],
         "UnhealthyThresholdCount": 2,
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -794,7 +809,10 @@
         ],
         "VpcEndpointType": "GatewayLoadBalancer",
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::VPCEndpoint"
@@ -823,7 +841,10 @@
         ],
         "VpcEndpointType": "GatewayLoadBalancer",
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::VPCEndpoint"
@@ -884,7 +905,10 @@
         ],
         "VpcEndpointType": "Interface",
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::VPCEndpoint"
@@ -956,7 +980,10 @@
           "Ref": "InternetGateway"
         },
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::VPCGatewayAttachment"
@@ -1266,7 +1293,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::RouteTable"
@@ -1282,7 +1312,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::RouteTable"
@@ -1334,7 +1367,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::RouteTable"
@@ -1364,7 +1400,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::Subnet"
@@ -1394,7 +1433,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::Subnet"
@@ -1424,7 +1466,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::Subnet"
@@ -1454,7 +1499,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::Subnet"
@@ -1486,7 +1534,10 @@
         "SecurityGroupIngress": [
           {
             "CidrIp": {
-              "Ref": "VpcCidr"
+              "Fn::GetAtt": [
+                "VPC",
+                "CidrBlock"
+              ]
             },
             "Description": "only HTTPS standard port needed for EC2 API",
             "FromPort": 443,
@@ -1503,7 +1554,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::SecurityGroup"
