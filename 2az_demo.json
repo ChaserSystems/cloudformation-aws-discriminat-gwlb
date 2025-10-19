@@ -745,7 +745,7 @@
         ],
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -778,7 +778,7 @@
         "UnhealthyThresholdCount": 2,
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -810,7 +810,7 @@
         "VpcEndpointType": "GatewayLoadBalancer",
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -842,7 +842,7 @@
         "VpcEndpointType": "GatewayLoadBalancer",
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -906,7 +906,7 @@
         "VpcEndpointType": "Interface",
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -981,7 +981,7 @@
         },
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -1294,7 +1294,7 @@
         ],
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -1313,7 +1313,7 @@
         ],
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -1368,7 +1368,7 @@
         ],
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -1401,7 +1401,7 @@
         ],
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -1434,7 +1434,7 @@
         ],
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -1500,7 +1500,7 @@
         ],
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
@@ -1555,7 +1555,7 @@
         ],
         "VpcId": {
           "Fn::GetAtt": [
-            "VPC",
+            "SubnetPublic1",
             "VpcId"
           ]
         }
