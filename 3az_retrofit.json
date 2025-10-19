@@ -22,7 +22,7 @@
       ]
     }
   },
-  "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
+  "Description": "A trio of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
   "Mappings": {
     "Region2ByolAmi": {
       "af-south-1": {
@@ -215,8 +215,10 @@
             "VpcCidr",
             "PrivateSubnetAZ1",
             "PrivateSubnetAZ2",
+            "PrivateSubnetAZ3",
             "PublicSubnetAZ1",
-            "PublicSubnetAZ2"
+            "PublicSubnetAZ2",
+            "PublicSubnetAZ3"
           ]
         },
         {
@@ -255,6 +257,18 @@
           "Id"
         ]
       }
+    },
+    "DiscrimiNATLoadBalancerEndpointAZ3": {
+      "Description": "Set the default route to this in the routing table for PrivateSubnetAZ3",
+      "Export": {
+        "Name": "DiscrimiNATVPCEndpoint3"
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "DiscrimiNATVPCEndpoint3",
+          "Id"
+        ]
+      }
     }
   },
   "Parameters": {
@@ -280,43 +294,34 @@
         "yes",
         "no"
       ],
-      "Default": "yes",
+      "Default": "no",
       "Description": "Allocate new Elastic IPs for NAT outbound. Select `no` if you want to use previously allocated EIPs.",
       "Type": "String"
     },
     "PrivateSubnetAZ1": {
-      "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
-      "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.0.0/23",
-      "Description": "The Private Subnet for Availability Zone 1. If going with the example layout, try 10.10.0.0/23 .",
-      "Type": "String"
+      "Type": "AWS::EC2::Subnet::Id"
     },
     "PrivateSubnetAZ2": {
-      "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
-      "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.2.0/23",
-      "Description": "The Private Subnet for Availability Zone 2. If going with the example layout, try 10.10.2.0/23 .",
-      "Type": "String"
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "PrivateSubnetAZ3": {
+      "Type": "AWS::EC2::Subnet::Id"
     },
     "PublicSubnetAZ1": {
-      "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
-      "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.10.0/24",
-      "Description": "The Public Subnet for Availability Zone 1. If going with the example layout, try 10.10.6.0/25 .",
-      "Type": "String"
+      "Type": "AWS::EC2::Subnet::Id"
     },
     "PublicSubnetAZ2": {
-      "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
-      "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.11.0/24",
-      "Description": "The Public Subnet for Availability Zone 2. If going with the example layout, try 10.10.6.128/25 .",
-      "Type": "String"
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "PublicSubnetAZ3": {
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "VPC": {
+      "Type": "AWS::EC2::VPC::Id"
     },
     "VpcCidr": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.0.0/20",
-      "Description": "The VPC-level CIDR block to deploy in this region. If going with the example layout, try 10.10.0.0/21 .",
       "Type": "String"
     }
   },
@@ -327,7 +332,7 @@
           "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
         },
         "Cooldown": "1",
-        "DesiredCapacity": "2",
+        "DesiredCapacity": "3",
         "HealthCheckGracePeriod": 0,
         "HealthCheckType": "ELB",
         "LaunchTemplate": {
@@ -341,7 +346,7 @@
             ]
           }
         },
-        "MaxSize": "3",
+        "MaxSize": "4",
         "MetricsCollection": [
           {
             "Granularity": "1Minute",
@@ -354,7 +359,7 @@
             ]
           }
         ],
-        "MinSize": "2",
+        "MinSize": "3",
         "Tags": [
           {
             "Key": "Name",
@@ -374,10 +379,13 @@
         ],
         "VPCZoneIdentifier": [
           {
-            "Ref": "SubnetPublic1"
+            "Ref": "PublicSubnetAZ1"
           },
           {
-            "Ref": "SubnetPublic2"
+            "Ref": "PublicSubnetAZ2"
+          },
+          {
+            "Ref": "PublicSubnetAZ3"
           }
         ]
       },
@@ -648,10 +656,13 @@
         ],
         "Subnets": [
           {
-            "Ref": "SubnetPrivate1"
+            "Ref": "PrivateSubnetAZ1"
           },
           {
-            "Ref": "SubnetPrivate2"
+            "Ref": "PrivateSubnetAZ2"
+          },
+          {
+            "Ref": "PrivateSubnetAZ3"
           }
         ],
         "Type": "gateway"
@@ -666,28 +677,6 @@
         "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": \"2026-01-19\",\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
       },
       "Type": "AWS::SSM::Parameter"
-    },
-    "DiscrimiNATRouteAssociation1": {
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "PrivateRouteTable1"
-        },
-        "SubnetId": {
-          "Ref": "SubnetPrivate1"
-        }
-      },
-      "Type": "AWS::EC2::SubnetRouteTableAssociation"
-    },
-    "DiscrimiNATRouteAssociation2": {
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "PrivateRouteTable2"
-        },
-        "SubnetId": {
-          "Ref": "SubnetPrivate2"
-        }
-      },
-      "Type": "AWS::EC2::SubnetRouteTableAssociation"
     },
     "DiscrimiNATSecurityGroup": {
       "Properties": {
@@ -742,10 +731,7 @@
           }
         ],
         "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
+          "Ref": "VPC"
         }
       },
       "Type": "AWS::EC2::SecurityGroup"
@@ -775,10 +761,7 @@
         ],
         "UnhealthyThresholdCount": 2,
         "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
+          "Ref": "VPC"
         }
       },
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -802,15 +785,12 @@
         },
         "SubnetIds": [
           {
-            "Ref": "SubnetPrivate1"
+            "Ref": "PrivateSubnetAZ1"
           }
         ],
         "VpcEndpointType": "GatewayLoadBalancer",
         "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
+          "Ref": "VPC"
         }
       },
       "Type": "AWS::EC2::VPCEndpoint"
@@ -834,15 +814,41 @@
         },
         "SubnetIds": [
           {
-            "Ref": "SubnetPrivate2"
+            "Ref": "PrivateSubnetAZ2"
           }
         ],
         "VpcEndpointType": "GatewayLoadBalancer",
         "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::VPCEndpoint"
+    },
+    "DiscrimiNATVPCEndpoint3": {
+      "Properties": {
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.vpce.",
+              {
+                "Ref": "AWS::Region"
+              },
+              ".",
+              {
+                "Ref": "DiscrimiNATVPCEndpointService"
+              }
+            ]
           ]
+        },
+        "SubnetIds": [
+          {
+            "Ref": "PrivateSubnetAZ3"
+          }
+        ],
+        "VpcEndpointType": "GatewayLoadBalancer",
+        "VpcId": {
+          "Ref": "VPC"
         }
       },
       "Type": "AWS::EC2::VPCEndpoint"
@@ -895,18 +901,18 @@
         },
         "SubnetIds": [
           {
-            "Ref": "SubnetPrivate1"
+            "Ref": "PrivateSubnetAZ1"
           },
           {
-            "Ref": "SubnetPrivate2"
+            "Ref": "PrivateSubnetAZ2"
+          },
+          {
+            "Ref": "PrivateSubnetAZ3"
           }
         ],
         "VpcEndpointType": "Interface",
         "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
+          "Ref": "VPC"
         }
       },
       "Type": "AWS::EC2::VPCEndpoint"
@@ -959,297 +965,21 @@
       },
       "Type": "AWS::EC2::EIP"
     },
-    "InternetGateway": {
+    "EIP4": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
+            "Key": "discriminat",
+            "Value": "some-comment"
+          },
+          {
             "Key": "Name",
-            "Value": {
-              "Fn::Sub": "InternetGateway-${AWS::StackName}"
-            }
+            "Value": "egress-ip-reserved"
           }
         ]
       },
-      "Type": "AWS::EC2::InternetGateway"
-    },
-    "InternetGatewayAttachment": {
-      "Properties": {
-        "InternetGatewayId": {
-          "Ref": "InternetGateway"
-        },
-        "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
-        }
-      },
-      "Type": "AWS::EC2::VPCGatewayAttachment"
-    },
-    "InternetGatewayRouteAssociation1": {
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "PublicRouteTable"
-        },
-        "SubnetId": {
-          "Ref": "SubnetPublic1"
-        }
-      },
-      "Type": "AWS::EC2::SubnetRouteTableAssociation"
-    },
-    "InternetGatewayRouteAssociation2": {
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "PublicRouteTable"
-        },
-        "SubnetId": {
-          "Ref": "SubnetPublic2"
-        }
-      },
-      "Type": "AWS::EC2::SubnetRouteTableAssociation"
-    },
-    "PrivateRouteTable1": {
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Sub": "Private1-${AWS::StackName}"
-            }
-          }
-        ],
-        "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
-        }
-      },
-      "Type": "AWS::EC2::RouteTable"
-    },
-    "PrivateRouteTable2": {
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Sub": "Private2-${AWS::StackName}"
-            }
-          }
-        ],
-        "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
-        }
-      },
-      "Type": "AWS::EC2::RouteTable"
-    },
-    "PrivateSubnet1DefaultRoute": {
-      "Properties": {
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "RouteTableId": {
-          "Ref": "PrivateRouteTable1"
-        },
-        "VpcEndpointId": {
-          "Ref": "DiscrimiNATVPCEndpoint1"
-        }
-      },
-      "Type": "AWS::EC2::Route"
-    },
-    "PrivateSubnet2DefaultRoute": {
-      "Properties": {
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "RouteTableId": {
-          "Ref": "PrivateRouteTable2"
-        },
-        "VpcEndpointId": {
-          "Ref": "DiscrimiNATVPCEndpoint2"
-        }
-      },
-      "Type": "AWS::EC2::Route"
-    },
-    "PublicRoute": {
-      "Properties": {
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "GatewayId": {
-          "Ref": "InternetGateway"
-        },
-        "RouteTableId": {
-          "Ref": "PublicRouteTable"
-        }
-      },
-      "Type": "AWS::EC2::Route"
-    },
-    "PublicRouteTable": {
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Sub": "Public-${AWS::StackName}"
-            }
-          }
-        ],
-        "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
-        }
-      },
-      "Type": "AWS::EC2::RouteTable"
-    },
-    "SubnetPrivate1": {
-      "Properties": {
-        "AvailabilityZone": {
-          "Fn::Select": [
-            "0",
-            {
-              "Fn::GetAZs": {
-                "Ref": "AWS::Region"
-              }
-            }
-          ]
-        },
-        "CidrBlock": {
-          "Ref": "PrivateSubnetAZ1"
-        },
-        "MapPublicIpOnLaunch": false,
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Sub": "Private1-${AWS::StackName}"
-            }
-          }
-        ],
-        "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
-        }
-      },
-      "Type": "AWS::EC2::Subnet"
-    },
-    "SubnetPrivate2": {
-      "Properties": {
-        "AvailabilityZone": {
-          "Fn::Select": [
-            "1",
-            {
-              "Fn::GetAZs": {
-                "Ref": "AWS::Region"
-              }
-            }
-          ]
-        },
-        "CidrBlock": {
-          "Ref": "PrivateSubnetAZ2"
-        },
-        "MapPublicIpOnLaunch": false,
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Sub": "Private2-${AWS::StackName}"
-            }
-          }
-        ],
-        "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
-        }
-      },
-      "Type": "AWS::EC2::Subnet"
-    },
-    "SubnetPublic1": {
-      "Properties": {
-        "AvailabilityZone": {
-          "Fn::Select": [
-            "0",
-            {
-              "Fn::GetAZs": {
-                "Ref": "AWS::Region"
-              }
-            }
-          ]
-        },
-        "CidrBlock": {
-          "Ref": "PublicSubnetAZ1"
-        },
-        "MapPublicIpOnLaunch": false,
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Sub": "Public1-${AWS::StackName}"
-            }
-          }
-        ],
-        "VpcId": {
-          "Fn::GetAtt": [
-            "VPC",
-            "VpcId"
-          ]
-        }
-      },
-      "Type": "AWS::EC2::Subnet"
-    },
-    "SubnetPublic2": {
-      "Properties": {
-        "AvailabilityZone": {
-          "Fn::Select": [
-            "1",
-            {
-              "Fn::GetAZs": {
-                "Ref": "AWS::Region"
-              }
-            }
-          ]
-        },
-        "CidrBlock": {
-          "Ref": "PublicSubnetAZ2"
-        },
-        "MapPublicIpOnLaunch": false,
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Sub": "Public2-${AWS::StackName}"
-            }
-          }
-        ],
-        "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
-        }
-      },
-      "Type": "AWS::EC2::Subnet"
-    },
-    "VPC": {
-      "Properties": {
-        "CidrBlock": {
-          "Ref": "VpcCidr"
-        },
-        "EnableDnsHostnames": true,
-        "EnableDnsSupport": true,
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Sub": "VPC-${AWS::StackName}"
-            }
-          }
-        ]
-      },
-      "Type": "AWS::EC2::VPC"
+      "Type": "AWS::EC2::EIP"
     },
     "VPCEndpointEC2SecurityGroup": {
       "Properties": {
@@ -1277,10 +1007,7 @@
           }
         ],
         "VpcId": {
-          "Fn::GetAtt": [
-            "SubnetPublic1",
-            "VpcId"
-          ]
+          "Ref": "VPC"
         }
       },
       "Type": "AWS::EC2::SecurityGroup"

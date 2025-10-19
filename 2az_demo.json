@@ -240,6 +240,32 @@
       ]
     }
   },
+  "Outputs": {
+    "DiscrimiNATLoadBalancerEndpointAZ1": {
+      "Description": "Set the default route to this in the routing table for PrivateSubnetAZ1",
+      "Export": {
+        "Name": "DiscrimiNATVPCEndpoint1"
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "DiscrimiNATVPCEndpoint1",
+          "Id"
+        ]
+      }
+    },
+    "DiscrimiNATLoadBalancerEndpointAZ2": {
+      "Description": "Set the default route to this in the routing table for PrivateSubnetAZ2",
+      "Export": {
+        "Name": "DiscrimiNATVPCEndpoint2"
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "DiscrimiNATVPCEndpoint2",
+          "Id"
+        ]
+      }
+    }
+  },
   "Parameters": {
     "BYOL": {
       "Description": "Supply the licence key, if supplied by Chaser Systems for you, here.",
@@ -700,10 +726,7 @@
         "SecurityGroupIngress": [
           {
             "CidrIp": {
-              "Fn::GetAtt": [
-                "VPC",
-                "CidrBlock"
-              ]
+              "Ref": "VpcCidr"
             },
             "Description": "internet-bound TCP connections from any host in the VPC",
             "FromPort": 0,
@@ -712,10 +735,7 @@
           },
           {
             "CidrIp": {
-              "Fn::GetAtt": [
-                "VPC",
-                "CidrBlock"
-              ]
+              "Ref": "VpcCidr"
             },
             "Description": "health check service",
             "FromPort": 1042,
@@ -724,10 +744,7 @@
           },
           {
             "CidrIp": {
-              "Fn::GetAtt": [
-                "VPC",
-                "CidrBlock"
-              ]
+              "Ref": "VpcCidr"
             },
             "Description": "GENEVE encapsulation receive port from GWLB",
             "FromPort": 6081,
@@ -1534,10 +1551,7 @@
         "SecurityGroupIngress": [
           {
             "CidrIp": {
-              "Fn::GetAtt": [
-                "VPC",
-                "CidrBlock"
-              ]
+              "Ref": "VpcCidr"
             },
             "Description": "only HTTPS standard port needed for EC2 API",
             "FromPort": 443,
