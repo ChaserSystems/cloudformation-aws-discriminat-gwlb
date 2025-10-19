@@ -85,6 +85,14 @@ $myjq '
   ' \
   3az_new-vpc.json > ${_tmpdir}/3az_r_01.json
 
+$myjq '
+  .Metadata."AWS::CloudFormation::Interface".ParameterGroups[0].Parameters =
+  .Metadata."AWS::CloudFormation::Interface".ParameterGroups[0].Parameters[0:2] +
+  ["VPC"] +
+  .Metadata."AWS::CloudFormation::Interface".ParameterGroups[0].Parameters[2:]
+  ' \
+  ${_tmpdir}/3az_r_01.json > ${_tmpdir}/3az_r_02.json
+
 $myjq 'del(
   .Resources.VPC,
   .Resources.SubnetPublic1,
@@ -112,10 +120,10 @@ $myjq 'del(
   .Resources.PrivateSubnet2DefaultRoute,
   .Resources.PrivateSubnet3DefaultRoute
   )' \
-  ${_tmpdir}/3az_r_01.json > ${_tmpdir}/3az_r_02.json
+  ${_tmpdir}/3az_r_02.json > ${_tmpdir}/3az_r_03.json
 
 $myjq 'walk(if type == "object" and has("VpcId") then .VpcId = {"Ref": "VPC"} else . end)' \
-  ${_tmpdir}/3az_r_02.json > ${_tmpdir}/3az_r_03.json
+  ${_tmpdir}/3az_r_03.json > ${_tmpdir}/3az_r_04.json
 
 $myjq '
   .Resources.DiscrimiNATAutoScalingGroup.Properties.VPCZoneIdentifier[0].Ref = "PublicSubnetAZ1" |
@@ -131,9 +139,9 @@ $myjq '
   .Resources.EC2VPCEndpoint.Properties.SubnetIds[1].Ref = "PrivateSubnetAZ2" |
   .Resources.EC2VPCEndpoint.Properties.SubnetIds[2].Ref = "PrivateSubnetAZ3"
   ' \
-  ${_tmpdir}/3az_r_03.json > ${_tmpdir}/3az_r_04.json
+  ${_tmpdir}/3az_r_04.json > ${_tmpdir}/3az_r_05.json
 
-$myjq --sort-keys . ${_tmpdir}/3az_r_04.json > ${_tmpdir}/3az_r_05.json
+$myjq --sort-keys . ${_tmpdir}/3az_r_05.json > ${_tmpdir}/3az_r_06.json
 
-cp ${_tmpdir}/3az_r_05.json 3az_retrofit.json
+cp ${_tmpdir}/3az_r_06.json 3az_retrofit.json
 ##

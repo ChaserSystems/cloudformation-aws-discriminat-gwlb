@@ -213,6 +213,7 @@
           "Parameters": [
             "NewEIPs",
             "VpcCidr",
+            "VPC",
             "PrivateSubnetAZ1",
             "PrivateSubnetAZ2",
             "PrivateSubnetAZ3",
