@@ -1,0 +1,943 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Conditions": {
+    "IsBYOL": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "BYOL"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "IsNewEIPs": {
+      "Fn::Equals": [
+        {
+          "Ref": "NewEIPs"
+        },
+        "yes"
+      ]
+    }
+  },
+  "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
+  "Mappings": {
+    "Region2ByolAmi": {
+      "af-south-1": {
+        "x86": "ami-0f7f9100dd8ad5bd4"
+      },
+      "ap-east-1": {
+        "x86": "ami-0ed2fd78d3818b2ea"
+      },
+      "ap-northeast-1": {
+        "x86": "ami-0b9b4ce8a07ec37c3"
+      },
+      "ap-northeast-2": {
+        "x86": "ami-01f048494f91d1b43"
+      },
+      "ap-northeast-3": {
+        "x86": "ami-01442c24661c4889b"
+      },
+      "ap-south-1": {
+        "x86": "ami-0e955811c950713e2"
+      },
+      "ap-south-2": {
+        "x86": "ami-0360a72c241a08740"
+      },
+      "ap-southeast-1": {
+        "x86": "ami-054898abb63d4fff0"
+      },
+      "ap-southeast-2": {
+        "x86": "ami-0368a7cd03614c0ff"
+      },
+      "ap-southeast-3": {
+        "x86": "ami-04b8676406fc5ebd3"
+      },
+      "ap-southeast-4": {
+        "x86": "ami-0debbfa3cba4a23b3"
+      },
+      "ca-central-1": {
+        "x86": "ami-0fe5ec6b137403af5"
+      },
+      "ca-west-1": {
+        "x86": "ami-01b94c1be72b1eab3"
+      },
+      "eu-central-1": {
+        "x86": "ami-0a5fc03be8035014b"
+      },
+      "eu-central-2": {
+        "x86": "ami-0269c56ddf91c7de9"
+      },
+      "eu-north-1": {
+        "x86": "ami-0059536c52a494ba7"
+      },
+      "eu-south-1": {
+        "x86": "ami-0763a8ba6461246b2"
+      },
+      "eu-south-2": {
+        "x86": "ami-05b409afad437507f"
+      },
+      "eu-west-1": {
+        "x86": "ami-07363769220bf2dbd"
+      },
+      "eu-west-2": {
+        "x86": "ami-0e2ff79839fa97cbd"
+      },
+      "eu-west-3": {
+        "x86": "ami-06e378e251cda623d"
+      },
+      "il-central-1": {
+        "x86": "ami-0f89ae6ac6d6c2659"
+      },
+      "me-central-1": {
+        "x86": "ami-06f6bd4c1fbcc305b"
+      },
+      "me-south-1": {
+        "x86": "ami-061ef5f10ecde13f1"
+      },
+      "sa-east-1": {
+        "x86": "ami-09312df7ac7aab15d"
+      },
+      "us-east-1": {
+        "x86": "ami-0d42c4bb0d6c5b50e"
+      },
+      "us-east-2": {
+        "x86": "ami-013146e75f7d887d1"
+      },
+      "us-west-1": {
+        "x86": "ami-0ff7654fb41915a29"
+      },
+      "us-west-2": {
+        "x86": "ami-081abdd617f0cbe56"
+      }
+    },
+    "Region2PaygAmi": {
+      "af-south-1": {
+        "x86": "ami-060515e90c24f703d"
+      },
+      "ap-east-1": {
+        "x86": "ami-09b0961eceaf95070"
+      },
+      "ap-northeast-1": {
+        "x86": "ami-04ab8942f35d42764"
+      },
+      "ap-northeast-2": {
+        "x86": "ami-02d93aa8fb8a96433"
+      },
+      "ap-northeast-3": {
+        "x86": "ami-0f48bf0de3083d6e1"
+      },
+      "ap-south-1": {
+        "x86": "ami-01d8617c889aeaf1c"
+      },
+      "ap-south-2": {
+        "x86": "ami-0d22e0a125f388fa6"
+      },
+      "ap-southeast-1": {
+        "x86": "ami-0a230e5a000ab5e5d"
+      },
+      "ap-southeast-2": {
+        "x86": "ami-0f0eed1ccebe42f9a"
+      },
+      "ap-southeast-3": {
+        "x86": "ami-0da2ad24ef314607a"
+      },
+      "ap-southeast-4": {
+        "x86": "ami-06880049cb9e267ec"
+      },
+      "ca-central-1": {
+        "x86": "ami-0be6fd4c1752285d8"
+      },
+      "ca-west-1": {
+        "x86": "ami-076c13bcc1d337eb2"
+      },
+      "eu-central-1": {
+        "x86": "ami-091eb9b8fcde40257"
+      },
+      "eu-central-2": {
+        "x86": "ami-0e7b3f48d3bcb9747"
+      },
+      "eu-north-1": {
+        "x86": "ami-0b8464f6e4d950465"
+      },
+      "eu-south-1": {
+        "x86": "ami-0b6cb1e02f107d06b"
+      },
+      "eu-south-2": {
+        "x86": "ami-0666251831f7281de"
+      },
+      "eu-west-1": {
+        "x86": "ami-02753b109229f66d8"
+      },
+      "eu-west-2": {
+        "x86": "ami-0326169eb4f2a60b1"
+      },
+      "eu-west-3": {
+        "x86": "ami-092b3ca575b316f28"
+      },
+      "il-central-1": {
+        "x86": "ami-0b8fb54582d7166df"
+      },
+      "me-central-1": {
+        "x86": "ami-068090c04a39585ba"
+      },
+      "me-south-1": {
+        "x86": "ami-0956536e47043c74f"
+      },
+      "sa-east-1": {
+        "x86": "ami-0f349747494a28a9d"
+      },
+      "us-east-1": {
+        "x86": "ami-0b515d5bc777c1d3b"
+      },
+      "us-east-2": {
+        "x86": "ami-0ef6f05b33ffec9ac"
+      },
+      "us-west-1": {
+        "x86": "ami-023ad01fa2e2cebac"
+      },
+      "us-west-2": {
+        "x86": "ami-0fa74208e1f09990d"
+      }
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "OPTIONAL Example VPC Network Configuration"
+          },
+          "Parameters": [
+            "NewEIPs",
+            "VpcCidr",
+            "VPC",
+            "PrivateSubnetAZ1",
+            "PrivateSubnetAZ2",
+            "PublicSubnetAZ1",
+            "PublicSubnetAZ2"
+          ]
+        },
+        {
+          "Label": {
+            "default": "OPTIONAL DiscrimiNAT Advanced Configuration"
+          },
+          "Parameters": [
+            "InstanceType",
+            "BYOL"
+          ]
+        }
+      ]
+    }
+  },
+  "Outputs": {
+    "DiscrimiNATLoadBalancerEndpointAZ1": {
+      "Description": "Set the default route to this in the routing table for PrivateSubnetAZ1",
+      "Export": {
+        "Name": "DiscrimiNATVPCEndpoint1"
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "DiscrimiNATVPCEndpoint1",
+          "Id"
+        ]
+      }
+    },
+    "DiscrimiNATLoadBalancerEndpointAZ2": {
+      "Description": "Set the default route to this in the routing table for PrivateSubnetAZ2",
+      "Export": {
+        "Name": "DiscrimiNATVPCEndpoint2"
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "DiscrimiNATVPCEndpoint2",
+          "Id"
+        ]
+      }
+    }
+  },
+  "Parameters": {
+    "BYOL": {
+      "Description": "Supply the licence key, if supplied by Chaser Systems for you, here.",
+      "NoEcho": true,
+      "Type": "String"
+    },
+    "InstanceType": {
+      "AllowedValues": [
+        "t3.small",
+        "c6i.large",
+        "c6i.xlarge",
+        "c6a.large",
+        "c6a.xlarge"
+      ],
+      "Default": "t3.small",
+      "Description": "The default of `t3.small` should suffice for light to medium levels of usage. Anything less than 2 CPU cores and 2 GB of RAM is not recommended. For performance testing, faster access to the Internet or for accounts with a large number of VMs (ENIs, rather), you may want to choose a machine type with dedicated CPU cores. Valid values are `t3.small` , `c6i.large` , `c6i.xlarge` , `c6a.large` , `c6a.xlarge` .",
+      "Type": "String"
+    },
+    "NewEIPs": {
+      "AllowedValues": [
+        "yes",
+        "no"
+      ],
+      "Default": "no",
+      "Description": "Allocate new Elastic IPs for NAT outbound. Select `no` if you want to use previously allocated EIPs.",
+      "Type": "String"
+    },
+    "PrivateSubnetAZ1": {
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "PrivateSubnetAZ2": {
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "PublicSubnetAZ1": {
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "PublicSubnetAZ2": {
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "VPC": {
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "VpcCidr": {
+      "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
+      "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "DiscrimiNATAutoScalingGroup": {
+      "Properties": {
+        "AutoScalingGroupName": {
+          "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
+        },
+        "Cooldown": "1",
+        "DesiredCapacity": "2",
+        "HealthCheckGracePeriod": 0,
+        "HealthCheckType": "ELB",
+        "LaunchTemplate": {
+          "LaunchTemplateId": {
+            "Ref": "DiscrimiNATLaunchTemplate"
+          },
+          "Version": {
+            "Fn::GetAtt": [
+              "DiscrimiNATLaunchTemplate",
+              "LatestVersionNumber"
+            ]
+          }
+        },
+        "MaxSize": "3",
+        "MetricsCollection": [
+          {
+            "Granularity": "1Minute",
+            "Metrics": [
+              "GroupInServiceInstances",
+              "GroupPendingInstances",
+              "GroupStandbyInstances",
+              "GroupTerminatingInstances",
+              "GroupTotalInstances"
+            ]
+          }
+        ],
+        "MinSize": "2",
+        "Tags": [
+          {
+            "Key": "Name",
+            "PropagateAtLaunch": true,
+            "Value": {
+              "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
+            }
+          }
+        ],
+        "TargetGroupARNs": [
+          {
+            "Ref": "DiscrimiNATTargetGroup"
+          }
+        ],
+        "TerminationPolicies": [
+          "OldestInstance"
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "PublicSubnetAZ1"
+          },
+          {
+            "Ref": "PublicSubnetAZ2"
+          }
+        ]
+      },
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinActiveInstancesPercent": 50
+        }
+      }
+    },
+    "DiscrimiNATAutoScalingLifecycleHook": {
+      "Properties": {
+        "AutoScalingGroupName": {
+          "Ref": "DiscrimiNATAutoScalingGroup"
+        },
+        "DefaultResult": "CONTINUE",
+        "HeartbeatTimeout": 330,
+        "LifecycleHookName": "wait-for-drain-and-warmup",
+        "LifecycleTransition": "autoscaling:EC2_INSTANCE_LAUNCHING"
+      },
+      "Type": "AWS::AutoScaling::LifecycleHook"
+    },
+    "DiscrimiNATAutoScalingPolicy": {
+      "Properties": {
+        "AutoScalingGroupName": {
+          "Ref": "DiscrimiNATAutoScalingGroup"
+        },
+        "Cooldown": "0",
+        "EstimatedInstanceWarmup": 330,
+        "PolicyType": "TargetTrackingScaling",
+        "TargetTrackingConfiguration": {
+          "DisableScaleIn": false,
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "ASGAverageCPUUtilization"
+          },
+          "TargetValue": 20
+        }
+      },
+      "Type": "AWS::AutoScaling::ScalingPolicy"
+    },
+    "DiscrimiNATIAMInstanceProfile": {
+      "Properties": {
+        "InstanceProfileName": {
+          "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
+        },
+        "Roles": [
+          {
+            "Ref": "DiscrimiNATIAMRole"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::InstanceProfile"
+    },
+    "DiscrimiNATIAMPolicy": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:logs:*:*:log-group:DiscrimiNAT:log-stream:*"
+              ]
+            },
+            {
+              "Action": [
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeAddresses"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ssm:GetParameter"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:ssm:*:*:parameter/DiscrimiNAT*"
+              ]
+            },
+            {
+              "Action": [
+                "ec2:ModifyInstanceAttribute",
+                "ec2:AssociateAddress"
+              ],
+              "Condition": {
+                "Null": {
+                  "aws:ResourceTag/discriminat": false
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": {
+          "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
+        },
+        "Roles": [
+          {
+            "Ref": "DiscrimiNATIAMRole"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "DiscrimiNATIAMRole": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "RoleName": {
+          "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
+        }
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "DiscrimiNATLaunchTemplate": {
+      "Properties": {
+        "LaunchTemplateData": {
+          "BlockDeviceMappings": [
+            {
+              "DeviceName": "/dev/xvda",
+              "Ebs": {
+                "Encrypted": true,
+                "Iops": 3000,
+                "VolumeSize": "25",
+                "VolumeType": "gp3"
+              }
+            }
+          ],
+          "IamInstanceProfile": {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DiscrimiNATIAMInstanceProfile",
+                "Arn"
+              ]
+            }
+          },
+          "ImageId": {
+            "Fn::If": [
+              "IsBYOL",
+              {
+                "Fn::FindInMap": [
+                  "Region2ByolAmi",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "x86"
+                ]
+              },
+              {
+                "Fn::FindInMap": [
+                  "Region2PaygAmi",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "x86"
+                ]
+              }
+            ]
+          },
+          "InstanceType": {
+            "Ref": "InstanceType"
+          },
+          "MetadataOptions": {
+            "HttpEndpoint": "enabled",
+            "HttpTokens": "required"
+          },
+          "Monitoring": {
+            "Enabled": true
+          },
+          "NetworkInterfaces": [
+            {
+              "AssociatePublicIpAddress": false,
+              "DeviceIndex": "0",
+              "Groups": [
+                {
+                  "Ref": "DiscrimiNATSecurityGroup"
+                }
+              ]
+            }
+          ],
+          "TagSpecifications": [
+            {
+              "ResourceType": "instance",
+              "Tags": [
+                {
+                  "Key": "discriminat",
+                  "Value": "self-manage"
+                }
+              ]
+            },
+            {
+              "ResourceType": "network-interface",
+              "Tags": [
+                {
+                  "Key": "discriminat",
+                  "Value": "self-manage"
+                }
+              ]
+            }
+          ],
+          "UserData": {
+            "Fn::If": [
+              "IsBYOL",
+              {
+                "Fn::Base64": {
+                  "Fn::Sub": "#cloud-config\nwrite_files:\n- encoding: base64\n  path: /etc/chaser/licence-key.der\n  permissions: 0404\n  content: ${BYOL}\n"
+                }
+              },
+              {
+                "Ref": "AWS::NoValue"
+              }
+            ]
+          }
+        },
+        "LaunchTemplateName": {
+          "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
+        }
+      },
+      "Type": "AWS::EC2::LaunchTemplate"
+    },
+    "DiscrimiNATListener": {
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "DiscrimiNATTargetGroup"
+            },
+            "Type": "forward"
+          }
+        ],
+        "LoadBalancerArn": {
+          "Ref": "DiscrimiNATLoadBalancer"
+        }
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener"
+    },
+    "DiscrimiNATLoadBalancer": {
+      "Properties": {
+        "LoadBalancerAttributes": [
+          {
+            "Key": "load_balancing.cross_zone.enabled",
+            "Value": "true"
+          }
+        ],
+        "Subnets": [
+          {
+            "Ref": "PrivateSubnetAZ1"
+          },
+          {
+            "Ref": "PrivateSubnetAZ2"
+          }
+        ],
+        "Type": "gateway"
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    },
+    "DiscrimiNATPreferences": {
+      "Properties": {
+        "Name": "DiscrimiNAT",
+        "Tier": "Standard",
+        "Type": "String",
+        "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": \"2026-01-19\",\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
+      },
+      "Type": "AWS::SSM::Parameter"
+    },
+    "DiscrimiNATSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "for DiscrimiNAT itself only",
+        "GroupName": {
+          "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "DiscrimiNAT Firewall itself to internet forwarding on behalf of other hosts",
+            "FromPort": 0,
+            "IpProtocol": "-1",
+            "ToPort": 0
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Ref": "VpcCidr"
+            },
+            "Description": "internet-bound TCP connections from any host in the VPC",
+            "FromPort": 0,
+            "IpProtocol": "tcp",
+            "ToPort": 65535
+          },
+          {
+            "CidrIp": {
+              "Ref": "VpcCidr"
+            },
+            "Description": "health check service",
+            "FromPort": 1042,
+            "IpProtocol": "tcp",
+            "ToPort": 1042
+          },
+          {
+            "CidrIp": {
+              "Ref": "VpcCidr"
+            },
+            "Description": "GENEVE encapsulation receive port from GWLB",
+            "FromPort": 6081,
+            "IpProtocol": "udp",
+            "ToPort": 6081
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "DiscrimiNATTargetGroup": {
+      "Properties": {
+        "HealthCheckEnabled": true,
+        "HealthCheckIntervalSeconds": 5,
+        "HealthCheckPort": "1042",
+        "HealthCheckTimeoutSeconds": 2,
+        "HealthyThresholdCount": 2,
+        "Port": 6081,
+        "Protocol": "GENEVE",
+        "TargetGroupAttributes": [
+          {
+            "Key": "deregistration_delay.timeout_seconds",
+            "Value": 150
+          },
+          {
+            "Key": "target_failover.on_deregistration",
+            "Value": "no_rebalance"
+          },
+          {
+            "Key": "target_failover.on_unhealthy",
+            "Value": "no_rebalance"
+          }
+        ],
+        "UnhealthyThresholdCount": 2,
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
+    },
+    "DiscrimiNATVPCEndpoint1": {
+      "Properties": {
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.vpce.",
+              {
+                "Ref": "AWS::Region"
+              },
+              ".",
+              {
+                "Ref": "DiscrimiNATVPCEndpointService"
+              }
+            ]
+          ]
+        },
+        "SubnetIds": [
+          {
+            "Ref": "PrivateSubnetAZ1"
+          }
+        ],
+        "VpcEndpointType": "GatewayLoadBalancer",
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::VPCEndpoint"
+    },
+    "DiscrimiNATVPCEndpoint2": {
+      "Properties": {
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.vpce.",
+              {
+                "Ref": "AWS::Region"
+              },
+              ".",
+              {
+                "Ref": "DiscrimiNATVPCEndpointService"
+              }
+            ]
+          ]
+        },
+        "SubnetIds": [
+          {
+            "Ref": "PrivateSubnetAZ2"
+          }
+        ],
+        "VpcEndpointType": "GatewayLoadBalancer",
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::VPCEndpoint"
+    },
+    "DiscrimiNATVPCEndpointService": {
+      "Properties": {
+        "AcceptanceRequired": false,
+        "GatewayLoadBalancerArns": [
+          {
+            "Ref": "DiscrimiNATLoadBalancer"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::VPCEndpointService"
+    },
+    "DiscrimiNATsSyncIngressRule": {
+      "Properties": {
+        "Description": "DiscrimiNATs sync",
+        "FromPort": 1042,
+        "GroupId": {
+          "Ref": "DiscrimiNATSecurityGroup"
+        },
+        "IpProtocol": "udp",
+        "SourceSecurityGroupId": {
+          "Ref": "DiscrimiNATSecurityGroup"
+        },
+        "ToPort": 1042
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "EC2VPCEndpoint": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Ref": "VPCEndpointEC2SecurityGroup"
+          }
+        ],
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.",
+              {
+                "Ref": "AWS::Region"
+              },
+              ".ec2"
+            ]
+          ]
+        },
+        "SubnetIds": [
+          {
+            "Ref": "PrivateSubnetAZ1"
+          },
+          {
+            "Ref": "PrivateSubnetAZ2"
+          }
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::VPCEndpoint"
+    },
+    "EIP1": {
+      "Condition": "IsNewEIPs",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "discriminat",
+            "Value": "some-comment"
+          },
+          {
+            "Key": "Name",
+            "Value": "egress-ip-reserved"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::EIP"
+    },
+    "EIP2": {
+      "Condition": "IsNewEIPs",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "discriminat",
+            "Value": "some-comment"
+          },
+          {
+            "Key": "Name",
+            "Value": "egress-ip-reserved"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::EIP"
+    },
+    "EIP3": {
+      "Condition": "IsNewEIPs",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "discriminat",
+            "Value": "some-comment"
+          },
+          {
+            "Key": "Name",
+            "Value": "egress-ip-reserved"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::EIP"
+    },
+    "VPCEndpointEC2SecurityGroup": {
+      "Properties": {
+        "GroupDescription": "ingress from entire VPC to EC2 Endpoint for connectivity to it without Public IPs",
+        "GroupName": {
+          "Fn::Sub": "VPCE-EC2-${AWS::StackName}"
+        },
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Ref": "VpcCidr"
+            },
+            "Description": "only HTTPS standard port needed for EC2 API",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "VPCE-EC2-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    }
+  }
+}

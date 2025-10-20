@@ -145,3 +145,40 @@ $myjq --sort-keys . ${_tmpdir}/3az_r_05.json > ${_tmpdir}/3az_r_06.json
 
 cp ${_tmpdir}/3az_r_06.json 3az_retrofit.json
 ##
+
+
+## 2az retrofit
+$myjq 'del(
+  .Metadata."AWS::CloudFormation::Interface".ParameterGroups[0].Parameters[8],
+  .Metadata."AWS::CloudFormation::Interface".ParameterGroups[0].Parameters[5],
+  .Parameters.PublicSubnetAZ3,
+  .Parameters.PrivateSubnetAZ3,
+  .Resources.DiscrimiNATAutoScalingGroup.Properties.VPCZoneIdentifier[2],
+  .Resources.DiscrimiNATLoadBalancer.Properties.Subnets[2],
+  .Resources.EC2VPCEndpoint.Properties.SubnetIds[2],
+  .Resources.SubnetPublic3,
+  .Resources.SubnetPrivate3,
+  .Resources.PrivateSubnet3DefaultRoute,
+  .Resources.PrivateRouteTable3,
+  .Resources.InternetGatewayRouteAssociation3,
+  .Resources.EIP4,
+  .Resources.DiscrimiNATVPCEndpoint3,
+  .Resources.DiscrimiNATRouteAssociation3,
+  .Outputs.DiscrimiNATLoadBalancerEndpointAZ3
+  )' \
+  3az_retrofit.json > ${_tmpdir}/2az_r_01.json
+
+$myjq '
+  .Resources.DiscrimiNATAutoScalingGroup.Properties.DesiredCapacity = "2" |
+  .Resources.DiscrimiNATAutoScalingGroup.Properties.MaxSize = "3" |
+  .Resources.DiscrimiNATAutoScalingGroup.Properties.MinSize = "2"
+  ' \
+  ${_tmpdir}/2az_r_01.json > ${_tmpdir}/2az_r_02.json
+
+$myjq '.Description = (.Description | gsub("trio"; "pair"))' \
+  ${_tmpdir}/2az_r_02.json > ${_tmpdir}/2az_r_03.json
+
+$myjq --sort-keys . ${_tmpdir}/2az_r_03.json > ${_tmpdir}/2az_r_04.json
+
+cp ${_tmpdir}/2az_r_04.json 2az_retrofit.json
+##
