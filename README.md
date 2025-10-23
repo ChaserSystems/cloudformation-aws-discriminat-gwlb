@@ -1,6 +1,8 @@
-# DiscrimiNATs in High Availability and Auto Scaling with a GatewayLoadBalancer
+# DiscrimiNATs in High Availability and Auto Scaling with a Gateway Load Balancer
 
-HTTPS, TLS, SSH, SFTP micro-segmentation firewall to monitor and filter VPC egress by hostnames. Architecture with Gateway Load Balancer (GWLB) VPC Endpoints for Private Subnets' route table entries to the Internet.
+HTTPS, TLS, SSH, SFTP micro-segmentation firewall to monitor and filter VPC egress by hostnames. Architecture with Gateway Load Balancer (GWLB) VPC Endpoints for Private Subnets' route table entries to the Internet. See [reference architectures here](https://chasersystems.com/docs/discriminat/aws/reference-architectures/).
+
+## CloudFormation Stacks
 
 `2az_demo.json`: A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing, a test VM in a Private Subnet with only some FQDNs allowed on egress, and another test VM with its egress traffic being monitored & logged. Login to the test VMs by clicking Connect in the web console and choosing the Session Manager option. Then try an allowed domain name with this command: `curl https://api.github.com/` . Full, self-service demo guide is at https://chasersystems.com/docs/discriminat/aws/quick-start/ .
 
@@ -12,7 +14,9 @@ HTTPS, TLS, SSH, SFTP micro-segmentation firewall to monitor and filter VPC egre
 
 `2az_retrofit.json`: A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing across two AZs in an existing new VPC.
 
-## The Region2AMI JSON key
+For single AZ deployment, see https://github.com/ChaserSystems/cloudformation-aws-discriminat-eni .
+
+## Map of AMI IDs
 
 The templates include a `Region2PaygAmi` key (or `Region2ByolAmi` if using an enterprise licence) under `Mappings`. This includes a map of AMI IDs to AWS Regions, and will be updated from time to time.
 
