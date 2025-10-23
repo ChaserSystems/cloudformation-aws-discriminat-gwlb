@@ -141,9 +141,12 @@ $myjq '
   ' \
   ${_tmpdir}/3az_r_04.json > ${_tmpdir}/3az_r_05.json
 
-$myjq --sort-keys . ${_tmpdir}/3az_r_05.json > ${_tmpdir}/3az_r_06.json
+$myjq '.Metadata."AWS::CloudFormation::Interface".ParameterGroups[0].Label.default = (.Metadata."AWS::CloudFormation::Interface".ParameterGroups[0].Label.default | gsub("OPTIONAL Example"; "REQUIRED"))' \
+  ${_tmpdir}/3az_r_05.json > ${_tmpdir}/3az_r_06.json
 
-cp ${_tmpdir}/3az_r_06.json 3az_retrofit.json
+$myjq --sort-keys . ${_tmpdir}/3az_r_06.json > ${_tmpdir}/3az_r_07.json
+
+cp ${_tmpdir}/3az_r_07.json 3az_retrofit.json
 ##
 
 
