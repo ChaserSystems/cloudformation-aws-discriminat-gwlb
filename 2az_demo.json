@@ -1,94 +1,205 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing",
+  "Conditions": {
+    "IsBYOL": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "BYOL"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "IsNewEIPs": {
+      "Fn::Equals": [
+        {
+          "Ref": "NewEIPs"
+        },
+        "yes"
+      ]
+    }
+  },
+  "Description": "A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing, a test VM in a Private Subnet with only some FQDNs allowed on egress, and another test VM with its egress traffic being monitored & logged. Login to the test VMs by clicking Connect in the web console and choosing the Session Manager option. Then try an allowed domain name with this command: curl https://api.github.com/ . Full, self-service demo guide is at https://chasersystems.com/docs/discriminat/aws/quick-start/",
   "Mappings": {
-    "Region2AMI": {
+    "Region2ByolAmi": {
       "af-south-1": {
-        "x86": "ami-0e40a515e2cd43430"
+        "x86": "ami-0f7f9100dd8ad5bd4"
       },
       "ap-east-1": {
-        "x86": "ami-0baec0aa5a2ff21f4"
+        "x86": "ami-0ed2fd78d3818b2ea"
       },
       "ap-northeast-1": {
-        "x86": "ami-0b0514499db222499"
+        "x86": "ami-0b9b4ce8a07ec37c3"
       },
       "ap-northeast-2": {
-        "x86": "ami-0bf675309b1a98fb4"
+        "x86": "ami-01f048494f91d1b43"
       },
       "ap-northeast-3": {
-        "x86": "ami-0218e55d489cc76b6"
+        "x86": "ami-01442c24661c4889b"
       },
       "ap-south-1": {
-        "x86": "ami-0681f075dae8f9a3f"
+        "x86": "ami-0e955811c950713e2"
       },
       "ap-south-2": {
-        "x86": "ami-0271e494938b52e35"
+        "x86": "ami-0360a72c241a08740"
       },
       "ap-southeast-1": {
-        "x86": "ami-0d6b8d2d746f94e07"
+        "x86": "ami-054898abb63d4fff0"
       },
       "ap-southeast-2": {
-        "x86": "ami-0a1e64103ca5a841e"
+        "x86": "ami-0368a7cd03614c0ff"
       },
       "ap-southeast-3": {
-        "x86": "ami-0cc6d4622ee4823ac"
+        "x86": "ami-04b8676406fc5ebd3"
       },
       "ap-southeast-4": {
-        "x86": "ami-0102df41ce6055cc8"
+        "x86": "ami-0debbfa3cba4a23b3"
       },
       "ca-central-1": {
-        "x86": "ami-0593dc1418e5939a6"
+        "x86": "ami-0fe5ec6b137403af5"
       },
       "ca-west-1": {
-        "x86": "ami-03f8cfd0ea1642452"
+        "x86": "ami-01b94c1be72b1eab3"
       },
       "eu-central-1": {
-        "x86": "ami-0d9811407e52bf28b"
+        "x86": "ami-0a5fc03be8035014b"
       },
       "eu-central-2": {
-        "x86": "ami-0a1123bb519ef9784"
+        "x86": "ami-0269c56ddf91c7de9"
       },
       "eu-north-1": {
-        "x86": "ami-023650c166c31dea8"
+        "x86": "ami-0059536c52a494ba7"
       },
       "eu-south-1": {
-        "x86": "ami-0492c976e91272f41"
+        "x86": "ami-0763a8ba6461246b2"
       },
       "eu-south-2": {
-        "x86": "ami-079834c0be262a200"
+        "x86": "ami-05b409afad437507f"
       },
       "eu-west-1": {
-        "x86": "ami-07ae062b59421b2af"
+        "x86": "ami-07363769220bf2dbd"
       },
       "eu-west-2": {
-        "x86": "ami-0d1c525777924dd33"
+        "x86": "ami-0e2ff79839fa97cbd"
       },
       "eu-west-3": {
-        "x86": "ami-00ad485e18f321147"
+        "x86": "ami-06e378e251cda623d"
       },
       "il-central-1": {
-        "x86": "ami-07ab20a4b4b0a7a11"
+        "x86": "ami-0f89ae6ac6d6c2659"
       },
       "me-central-1": {
-        "x86": "ami-0338ca519d907551c"
+        "x86": "ami-06f6bd4c1fbcc305b"
       },
       "me-south-1": {
-        "x86": "ami-0c159909c23b7e959"
+        "x86": "ami-061ef5f10ecde13f1"
       },
       "sa-east-1": {
-        "x86": "ami-0b0c9d5d2d194f7eb"
+        "x86": "ami-09312df7ac7aab15d"
       },
       "us-east-1": {
-        "x86": "ami-0dffa6ae454857cf3"
+        "x86": "ami-0d42c4bb0d6c5b50e"
       },
       "us-east-2": {
-        "x86": "ami-0e261e58375c0c955"
+        "x86": "ami-013146e75f7d887d1"
       },
       "us-west-1": {
-        "x86": "ami-09062d1cfa1d854b8"
+        "x86": "ami-0ff7654fb41915a29"
       },
       "us-west-2": {
-        "x86": "ami-09bc720f322d21fdd"
+        "x86": "ami-081abdd617f0cbe56"
+      }
+    },
+    "Region2PaygAmi": {
+      "af-south-1": {
+        "x86": "ami-060515e90c24f703d"
+      },
+      "ap-east-1": {
+        "x86": "ami-09b0961eceaf95070"
+      },
+      "ap-northeast-1": {
+        "x86": "ami-04ab8942f35d42764"
+      },
+      "ap-northeast-2": {
+        "x86": "ami-02d93aa8fb8a96433"
+      },
+      "ap-northeast-3": {
+        "x86": "ami-0f48bf0de3083d6e1"
+      },
+      "ap-south-1": {
+        "x86": "ami-01d8617c889aeaf1c"
+      },
+      "ap-south-2": {
+        "x86": "ami-0d22e0a125f388fa6"
+      },
+      "ap-southeast-1": {
+        "x86": "ami-0a230e5a000ab5e5d"
+      },
+      "ap-southeast-2": {
+        "x86": "ami-0f0eed1ccebe42f9a"
+      },
+      "ap-southeast-3": {
+        "x86": "ami-0da2ad24ef314607a"
+      },
+      "ap-southeast-4": {
+        "x86": "ami-06880049cb9e267ec"
+      },
+      "ca-central-1": {
+        "x86": "ami-0be6fd4c1752285d8"
+      },
+      "ca-west-1": {
+        "x86": "ami-076c13bcc1d337eb2"
+      },
+      "eu-central-1": {
+        "x86": "ami-091eb9b8fcde40257"
+      },
+      "eu-central-2": {
+        "x86": "ami-0e7b3f48d3bcb9747"
+      },
+      "eu-north-1": {
+        "x86": "ami-0b8464f6e4d950465"
+      },
+      "eu-south-1": {
+        "x86": "ami-0b6cb1e02f107d06b"
+      },
+      "eu-south-2": {
+        "x86": "ami-0666251831f7281de"
+      },
+      "eu-west-1": {
+        "x86": "ami-02753b109229f66d8"
+      },
+      "eu-west-2": {
+        "x86": "ami-0326169eb4f2a60b1"
+      },
+      "eu-west-3": {
+        "x86": "ami-092b3ca575b316f28"
+      },
+      "il-central-1": {
+        "x86": "ami-0b8fb54582d7166df"
+      },
+      "me-central-1": {
+        "x86": "ami-068090c04a39585ba"
+      },
+      "me-south-1": {
+        "x86": "ami-0956536e47043c74f"
+      },
+      "sa-east-1": {
+        "x86": "ami-0f349747494a28a9d"
+      },
+      "us-east-1": {
+        "x86": "ami-0b515d5bc777c1d3b"
+      },
+      "us-east-2": {
+        "x86": "ami-0ef6f05b33ffec9ac"
+      },
+      "us-west-1": {
+        "x86": "ami-023ad01fa2e2cebac"
+      },
+      "us-west-2": {
+        "x86": "ami-0fa74208e1f09990d"
       }
     }
   },
@@ -97,9 +208,19 @@
       "ParameterGroups": [
         {
           "Label": {
+            "default": "Example Application Egress Allowlist Configuration"
+          },
+          "Parameters": [
+            "MyAppHTTPSAllowlist",
+            "MyAppSSHAllowlist"
+          ]
+        },
+        {
+          "Label": {
             "default": "OPTIONAL Example VPC Network Configuration"
           },
           "Parameters": [
+            "NewEIPs",
             "VpcCidr",
             "PrivateSubnetAZ1",
             "PrivateSubnetAZ2",
@@ -112,13 +233,45 @@
             "default": "OPTIONAL DiscrimiNAT Advanced Configuration"
           },
           "Parameters": [
-            "InstanceType"
+            "InstanceType",
+            "BYOL"
           ]
         }
       ]
     }
   },
+  "Outputs": {
+    "DiscrimiNATLoadBalancerEndpointAZ1": {
+      "Description": "Set the default route to this in the routing table for PrivateSubnetAZ1",
+      "Export": {
+        "Name": "DiscrimiNATVPCEndpoint1"
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "DiscrimiNATVPCEndpoint1",
+          "Id"
+        ]
+      }
+    },
+    "DiscrimiNATLoadBalancerEndpointAZ2": {
+      "Description": "Set the default route to this in the routing table for PrivateSubnetAZ2",
+      "Export": {
+        "Name": "DiscrimiNATVPCEndpoint2"
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "DiscrimiNATVPCEndpoint2",
+          "Id"
+        ]
+      }
+    }
+  },
   "Parameters": {
+    "BYOL": {
+      "Description": "Supply the licence key, if generated by Chaser Systems for you, here",
+      "NoEcho": true,
+      "Type": "String"
+    },
     "InstanceType": {
       "AllowedValues": [
         "t3.small",
@@ -128,42 +281,61 @@
         "c6a.xlarge"
       ],
       "Default": "t3.small",
-      "Description": "The default of `t3.small` should suffice for light to medium levels of usage. Anything less than 2 CPU cores and 2 GB of RAM is not recommended. For performance testing, faster access to the Internet or for accounts with a large number of VMs (ENIs, rather), you may want to choose a machine type with dedicated CPU cores. Valid values are `t3.small` , `c6i.large` , `c6i.xlarge` , `c6a.large` , `c6a.xlarge` .",
+      "Description": "The default of `t3.small` should suffice for light to medium levels of usage. Anything less than 2 CPU cores and 2 GB of RAM is not recommended. For performance testing, faster access to the Internet or for accounts with a large number of VMs (ENIs, rather), you may want to choose a machine type with dedicated CPU cores. Valid values are `t3.small` , `c6i.large` , `c6i.xlarge` , `c6a.large` and `c6a.xlarge`",
+      "Type": "String"
+    },
+    "MyAppHTTPSAllowlist": {
+      "Default": "api.github.com,icanhazdadjoke.com",
+      "Description": "List of FQDNs to allow over HTTPS, in comma-separated format without whitespace",
+      "Type": "String"
+    },
+    "MyAppSSHAllowlist": {
+      "Default": "itcsubmit.wustl.edu",
+      "Description": "List of FQDNs to allow over SSH, in comma-separated format without whitespace",
+      "Type": "String"
+    },
+    "NewEIPs": {
+      "AllowedValues": [
+        "yes",
+        "no"
+      ],
+      "Default": "yes",
+      "Description": "Allocate new Elastic IPs for NAT outbound. Select `no` if you want to use previously allocated EIPs",
       "Type": "String"
     },
     "PrivateSubnetAZ1": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
       "Default": "10.10.0.0/23",
-      "Description": "The Private Subnet for Availability Zone 1. If going with the example layout, try 10.10.0.0/23 .",
+      "Description": "The Private Subnet for Availability Zone 1. If going with the example layout, try 10.10.0.0/23",
       "Type": "String"
     },
     "PrivateSubnetAZ2": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
       "Default": "10.10.2.0/23",
-      "Description": "The Private Subnet for Availability Zone 2. If going with the example layout, try 10.10.2.0/23 .",
+      "Description": "The Private Subnet for Availability Zone 2. If going with the example layout, try 10.10.2.0/23",
       "Type": "String"
     },
     "PublicSubnetAZ1": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.6.0/25",
-      "Description": "The Public Subnet for Availability Zone 1. If going with the example layout, try 10.10.6.0/25 .",
+      "Default": "10.10.10.0/24",
+      "Description": "The Public Subnet for Availability Zone 1. If going with the example layout, try 10.10.10.0/24",
       "Type": "String"
     },
     "PublicSubnetAZ2": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.6.128/25",
-      "Description": "The Public Subnet for Availability Zone 2. If going with the example layout, try 10.10.6.128/25 .",
+      "Default": "10.10.11.0/24",
+      "Description": "The Public Subnet for Availability Zone 2. If going with the example layout, try 10.10.11.0/24",
       "Type": "String"
     },
     "VpcCidr": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
-      "Default": "10.10.0.0/21",
-      "Description": "The VPC-level CIDR block to deploy in this region. If going with the example layout, try 10.10.0.0/21 .",
+      "Default": "10.10.0.0/20",
+      "Description": "The VPC-level CIDR block to deploy in this region. If going with the example layout, try 10.10.0.0/20",
       "Type": "String"
     }
   },
@@ -228,7 +400,12 @@
           }
         ]
       },
-      "Type": "AWS::AutoScaling::AutoScalingGroup"
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinActiveInstancesPercent": 50
+        }
+      }
     },
     "DiscrimiNATAutoScalingLifecycleHook": {
       "Properties": {
@@ -381,12 +558,26 @@
             }
           },
           "ImageId": {
-            "Fn::FindInMap": [
-              "Region2AMI",
+            "Fn::If": [
+              "IsBYOL",
               {
-                "Ref": "AWS::Region"
+                "Fn::FindInMap": [
+                  "Region2ByolAmi",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "x86"
+                ]
               },
-              "x86"
+              {
+                "Fn::FindInMap": [
+                  "Region2PaygAmi",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "x86"
+                ]
+              }
             ]
           },
           "InstanceType": {
@@ -419,8 +610,39 @@
                   "Value": "self-manage"
                 }
               ]
+            },
+            {
+              "ResourceType": "network-interface",
+              "Tags": [
+                {
+                  "Key": "discriminat",
+                  "Value": "self-manage"
+                }
+              ]
+            },
+            {
+              "ResourceType": "volume",
+              "Tags": [
+                {
+                  "Key": "discriminat",
+                  "Value": "self-manage"
+                }
+              ]
             }
-          ]
+          ],
+          "UserData": {
+            "Fn::If": [
+              "IsBYOL",
+              {
+                "Fn::Base64": {
+                  "Fn::Sub": "#cloud-config\nwrite_files:\n- encoding: base64\n  path: /etc/chaser/licence-key.der\n  permissions: 0404\n  content: ${BYOL}\n"
+                }
+              },
+              {
+                "Ref": "AWS::NoValue"
+              }
+            ]
+          }
         },
         "LaunchTemplateName": {
           "Fn::Sub": "DiscrimiNAT-${AWS::StackName}"
@@ -548,7 +770,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::SecurityGroup"
@@ -578,7 +803,10 @@
         ],
         "UnhealthyThresholdCount": 2,
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -607,7 +835,10 @@
         ],
         "VpcEndpointType": "GatewayLoadBalancer",
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::VPCEndpoint"
@@ -636,7 +867,10 @@
         ],
         "VpcEndpointType": "GatewayLoadBalancer",
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::VPCEndpoint"
@@ -651,6 +885,21 @@
         ]
       },
       "Type": "AWS::EC2::VPCEndpointService"
+    },
+    "DiscrimiNATsSyncIngressRule": {
+      "Properties": {
+        "Description": "DiscrimiNATs sync",
+        "FromPort": 1042,
+        "GroupId": {
+          "Ref": "DiscrimiNATSecurityGroup"
+        },
+        "IpProtocol": "udp",
+        "SourceSecurityGroupId": {
+          "Ref": "DiscrimiNATSecurityGroup"
+        },
+        "ToPort": 1042
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
     },
     "EC2VPCEndpoint": {
       "Properties": {
@@ -682,12 +931,16 @@
         ],
         "VpcEndpointType": "Interface",
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::VPCEndpoint"
     },
     "EIP1": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
@@ -703,6 +956,7 @@
       "Type": "AWS::EC2::EIP"
     },
     "EIP2": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
@@ -718,6 +972,7 @@
       "Type": "AWS::EC2::EIP"
     },
     "EIP3": {
+      "Condition": "IsNewEIPs",
       "Properties": {
         "Tags": [
           {
@@ -751,7 +1006,10 @@
           "Ref": "InternetGateway"
         },
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::VPCGatewayAttachment"
@@ -778,6 +1036,278 @@
       },
       "Type": "AWS::EC2::SubnetRouteTableAssociation"
     },
+    "MyAppHTTPSSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "MyApp HTTPS Egress",
+        "GroupName": {
+          "Fn::Sub": "MyApp-HTTPS-Egress-${AWS::StackName}"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "discriminat:tls:",
+                  {
+                    "Ref": "MyAppHTTPSAllowlist"
+                  }
+                ]
+              ]
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyApp-HTTPS-Egress-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "MyAppIAMInstanceProfile": {
+      "Properties": {
+        "InstanceProfileName": {
+          "Fn::Sub": "MyApp-${AWS::StackName}"
+        },
+        "Roles": [
+          {
+            "Ref": "MyAppIAMRole"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::InstanceProfile"
+    },
+    "MyAppIAMRole": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        ],
+        "RoleName": {
+          "Fn::Sub": "MyApp-${AWS::StackName}"
+        }
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "MyAppMonitoredSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "MyApp Monitored Egress",
+        "GroupName": {
+          "Fn::Sub": "MyApp-Monitored-Egress-${AWS::StackName}"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "discriminat:see-thru:2026-01-19",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyApp-Monitored-Egress-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "MyAppSSHSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "MyApp SSH Egress",
+        "GroupName": {
+          "Fn::Sub": "MyApp-SSH-Egress-${AWS::StackName}"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "discriminat:ssh:",
+                  {
+                    "Ref": "MyAppSSHAllowlist"
+                  }
+                ]
+              ]
+            },
+            "FromPort": 22,
+            "IpProtocol": "tcp",
+            "ToPort": 22
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyApp-SSH-Egress-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "MyAppSSMSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "MyApp AWS-SSM Egress",
+        "GroupName": {
+          "Fn::Sub": "MyApp-AWS-SSM-Egress-${AWS::StackName}"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "discriminat:tls:",
+                  "ssm.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".amazonaws.com",
+                  ",",
+                  "ssmmessages.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".amazonaws.com",
+                  ",",
+                  "ec2messages.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".amazonaws.com"
+                ]
+              ]
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyApp-AWS-SSM-Egress-${AWS::StackName}"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "MyMonitoredApp": {
+      "DependsOn": [
+        "MyAppIAMInstanceProfile"
+      ],
+      "Properties": {
+        "IamInstanceProfile": {
+          "Fn::Sub": "MyApp-${AWS::StackName}"
+        },
+        "ImageId": "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}",
+        "InstanceType": "t3.small",
+        "SecurityGroupIds": [
+          {
+            "Ref": "MyAppHTTPSSecurityGroup"
+          },
+          {
+            "Ref": "MyAppMonitoredSecurityGroup"
+          },
+          {
+            "Ref": "MyAppSSMSecurityGroup"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "SubnetPrivate2"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MyMonitoredApp-${AWS::StackName}"
+            }
+          }
+        ],
+        "UserData": "I2Nsb3VkLWNvbmZpZwpydW5jbWQ6CiAgLSBbImhvc3RuYW1lIiwgIm15LW1vbml0b3JlZC1hcHAiXQogIC0gWwogICAgICAiL3Vzci9iaW4vc2VkIiwKICAgICAgIi1pIiwKICAgICAgIjE4aUVudmlyb25tZW50PUVOVj0vb3B0L3N3aXRjaC1zaGVsbC5zaCIsCiAgICAgICIvdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbS9hbWF6b24tc3NtLWFnZW50LnNlcnZpY2UiLAogICAgXQogIC0gWyJzeXN0ZW1jdGwiLCAiZGFlbW9uLXJlbG9hZCJdCiAgLSBbInN5c3RlbWN0bCIsICJyZXN0YXJ0IiwgImFtYXpvbi1zc20tYWdlbnQiXQp3cml0ZV9maWxlczoKICAtIGVuY29kaW5nOiBiNjQKICAgIGNvbnRlbnQ6IGFXWWdXeUFpSkhzd2ZTSWdQU0FpYzJnaUlGMDdJSFJvWlc0S0lDQmxlR1ZqSUM5MWMzSXZZbWx1TDJKaGMyZ0tabWtLCiAgICBwYXRoOiAvb3B0L3N3aXRjaC1zaGVsbC5zaAo="
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "MySecuredApp": {
+      "DependsOn": [
+        "MyAppIAMInstanceProfile"
+      ],
+      "Properties": {
+        "IamInstanceProfile": {
+          "Fn::Sub": "MyApp-${AWS::StackName}"
+        },
+        "ImageId": "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}",
+        "InstanceType": "t3.small",
+        "SecurityGroupIds": [
+          {
+            "Ref": "MyAppHTTPSSecurityGroup"
+          },
+          {
+            "Ref": "MyAppSSHSecurityGroup"
+          },
+          {
+            "Ref": "MyAppSSMSecurityGroup"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "SubnetPrivate1"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "MySecuredApp-${AWS::StackName}"
+            }
+          }
+        ],
+        "UserData": "I2Nsb3VkLWNvbmZpZwpydW5jbWQ6CiAgLSBbImhvc3RuYW1lIiwgIm15LXNlY3VyZWQtYXBwIl0KICAtIFsKICAgICAgIi91c3IvYmluL3NlZCIsCiAgICAgICItaSIsCiAgICAgICIxOGlFbnZpcm9ubWVudD1FTlY9L29wdC9zd2l0Y2gtc2hlbGwuc2giLAogICAgICAiL3Vzci9saWIvc3lzdGVtZC9zeXN0ZW0vYW1hem9uLXNzbS1hZ2VudC5zZXJ2aWNlIiwKICAgIF0KICAtIFsic3lzdGVtY3RsIiwgImRhZW1vbi1yZWxvYWQiXQogIC0gWyJzeXN0ZW1jdGwiLCAicmVzdGFydCIsICJhbWF6b24tc3NtLWFnZW50Il0Kd3JpdGVfZmlsZXM6CiAgLSBlbmNvZGluZzogYjY0CiAgICBjb250ZW50OiBhV1lnV3lBaUpIc3dmU0lnUFNBaWMyZ2lJRjA3SUhSb1pXNEtJQ0JsZUdWaklDOTFjM0l2WW1sdUwySmhjMmdLWm1rSwogICAgcGF0aDogL29wdC9zd2l0Y2gtc2hlbGwuc2gK"
+      },
+      "Type": "AWS::EC2::Instance"
+    },
     "PrivateRouteTable1": {
       "Properties": {
         "Tags": [
@@ -789,7 +1319,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::RouteTable"
@@ -805,7 +1338,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::RouteTable"
@@ -857,7 +1393,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::RouteTable"
@@ -887,7 +1426,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::Subnet"
@@ -917,7 +1459,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::Subnet"
@@ -947,7 +1492,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "VPC",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::Subnet"
@@ -977,7 +1525,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::Subnet"
@@ -1026,7 +1577,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Fn::GetAtt": [
+            "SubnetPublic1",
+            "VpcId"
+          ]
         }
       },
       "Type": "AWS::EC2::SecurityGroup"
