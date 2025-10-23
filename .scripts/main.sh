@@ -74,13 +74,14 @@ cp ${_tmpdir}/demo_04.json 2az_demo.json
 
 ## 3az retrofit
 $myjq '
-  .Parameters.PublicSubnetAZ1 = {"Type": "AWS::EC2::Subnet::Id"} |
-  .Parameters.PrivateSubnetAZ1 = {"Type": "AWS::EC2::Subnet::Id"} |
-  .Parameters.PublicSubnetAZ2 = {"Type": "AWS::EC2::Subnet::Id"} |
-  .Parameters.PrivateSubnetAZ2 = {"Type": "AWS::EC2::Subnet::Id"} |
-  .Parameters.PublicSubnetAZ3 = {"Type": "AWS::EC2::Subnet::Id"} |
-  .Parameters.PrivateSubnetAZ3 = {"Type": "AWS::EC2::Subnet::Id"} |
-  .Parameters.VPC = {"Type": "AWS::EC2::VPC::Id"} |
+  .Parameters.PublicSubnetAZ1 = {"Description": "(existing)", "Type": "AWS::EC2::Subnet::Id"} |
+  .Parameters.PrivateSubnetAZ1 = {"Description": "(existing)", "Type": "AWS::EC2::Subnet::Id"} |
+  .Parameters.PublicSubnetAZ2 = {"Description": "(existing)", "Type": "AWS::EC2::Subnet::Id"} |
+  .Parameters.PrivateSubnetAZ2 = {"Description": "(existing)", "Type": "AWS::EC2::Subnet::Id"} |
+  .Parameters.PublicSubnetAZ3 = {"Description": "(existing)", "Type": "AWS::EC2::Subnet::Id"} |
+  .Parameters.PrivateSubnetAZ3 = {"Description": "(existing)", "Type": "AWS::EC2::Subnet::Id"} |
+  .Parameters.VPC = {"Description": "(existing)", "Type": "AWS::EC2::VPC::Id"} |
+  .Parameters.VpcCidr.Description = "(existing)" |
   .Parameters.NewEIPs.Default = "no"
   ' \
   3az_new-vpc.json > ${_tmpdir}/3az_r_01.json
@@ -112,7 +113,6 @@ $myjq 'del(
   .Resources.PublicRoute,
   .Resources.PublicRouteTable,
   .Parameters.VpcCidr.Default,
-  .Parameters.VpcCidr.Description,
   .Resources.DiscrimiNATRouteAssociation1,
   .Resources.DiscrimiNATRouteAssociation2,
   .Resources.DiscrimiNATRouteAssociation3,

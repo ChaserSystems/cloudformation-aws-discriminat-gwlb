@@ -286,23 +286,29 @@
       "Type": "String"
     },
     "PrivateSubnetAZ1": {
+      "Description": "(existing)",
       "Type": "AWS::EC2::Subnet::Id"
     },
     "PrivateSubnetAZ2": {
+      "Description": "(existing)",
       "Type": "AWS::EC2::Subnet::Id"
     },
     "PublicSubnetAZ1": {
+      "Description": "(existing)",
       "Type": "AWS::EC2::Subnet::Id"
     },
     "PublicSubnetAZ2": {
+      "Description": "(existing)",
       "Type": "AWS::EC2::Subnet::Id"
     },
     "VPC": {
+      "Description": "(existing)",
       "Type": "AWS::EC2::VPC::Id"
     },
     "VpcCidr": {
       "AllowedPattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/\\d{1,2}$",
       "ConstraintDescription": "Must be in CIDR Notation, for example 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/24",
+      "Description": "(existing)",
       "Type": "String"
     }
   },
