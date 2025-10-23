@@ -18,7 +18,7 @@ For single AZ deployment, see https://github.com/ChaserSystems/cloudformation-aw
 
 ## Map of AMI IDs
 
-The templates include a `Region2PaygAmi` key (or `Region2ByolAmi` if using an enterprise licence) under `Mappings`. This includes a map of AMI IDs to AWS Regions, and will be updated from time to time.
+The templates include a `Region2PaygAmi` key (or `Region2ByolAmi` if using an enterprise licence) under `Mappings`. This includes a map of AMI IDs to AWS Regions, and will be updated as per [our updates policy](https://chasersystems.com/discriminat/faq/#what-about-images-security-updates).
 
 > [!IMPORTANT]\
 > If you wish to always run the latest version of DiscrimiNAT, please subscribe to the changes in this repository by clicking Watch -> Custom -> Releases -> Apply.
