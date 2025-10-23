@@ -10,9 +10,9 @@ HTTPS, TLS, SSH, SFTP micro-segmentation firewall to monitor and filter VPC egre
 
 `2az_new-vpc.json`: A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing across two AZs in a completely new VPC (also deployed by this stack).
 
-`3az_retrofit.json`: A trio of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing across three AZs in an existing new VPC.
+`3az_retrofit.json`: A trio of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing across three AZs in an existing VPC.
 
-`2az_retrofit.json`: A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing across two AZs in an existing new VPC.
+`2az_retrofit.json`: A pair of DiscrimiNAT instances in High Availability with Auto Scaling and Load Balancing across two AZs in an existing VPC.
 
 For single AZ deployment, see https://github.com/ChaserSystems/cloudformation-aws-discriminat-eni .
 
