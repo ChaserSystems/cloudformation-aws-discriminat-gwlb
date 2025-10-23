@@ -600,6 +600,15 @@
                   "Value": "self-manage"
                 }
               ]
+            },
+            {
+              "ResourceType": "volume",
+              "Tags": [
+                {
+                  "Key": "discriminat",
+                  "Value": "self-manage"
+                }
+              ]
             }
           ],
           "UserData": {
