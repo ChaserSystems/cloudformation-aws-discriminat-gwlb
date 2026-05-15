@@ -1148,7 +1148,7 @@
         "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
-            "Description": "discriminat:see-thru:2026-01-19",
+            "Description": "discriminat:see-thru:2026-12-31",
             "FromPort": 443,
             "IpProtocol": "tcp",
             "ToPort": 443
