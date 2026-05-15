@@ -541,7 +541,7 @@
               "Ebs": {
                 "Encrypted": true,
                 "Iops": 3000,
-                "VolumeSize": "25",
+                "VolumeSize": "35",
                 "VolumeType": "gp3"
               }
             }
