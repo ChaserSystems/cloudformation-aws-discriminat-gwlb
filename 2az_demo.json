@@ -456,7 +456,7 @@
           "PredefinedMetricSpecification": {
             "PredefinedMetricType": "ASGAverageCPUUtilization"
           },
-          "TargetValue": 20
+          "TargetValue": 50
         }
       },
       "Type": "AWS::AutoScaling::ScalingPolicy"
@@ -609,7 +609,8 @@
           },
           "MetadataOptions": {
             "HttpEndpoint": "enabled",
-            "HttpTokens": "required"
+            "HttpTokens": "required",
+            "InstanceMetadataTags": "enabled"
           },
           "Monitoring": {
             "Enabled": true
@@ -631,7 +632,7 @@
               "Tags": [
                 {
                   "Key": "discriminat",
-                  "Value": "self-manage"
+                  "Value": "%default"
                 }
               ]
             },
@@ -640,7 +641,7 @@
               "Tags": [
                 {
                   "Key": "discriminat",
-                  "Value": "self-manage"
+                  "Value": "%default"
                 }
               ]
             },
@@ -649,7 +650,7 @@
               "Tags": [
                 {
                   "Key": "discriminat",
-                  "Value": "self-manage"
+                  "Value": "%default"
                 }
               ]
             }
