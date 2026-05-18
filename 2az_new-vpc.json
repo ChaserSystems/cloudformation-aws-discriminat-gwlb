@@ -697,7 +697,7 @@
         "Name": "DiscrimiNAT",
         "Tier": "Standard",
         "Type": "String",
-        "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": \"2026-12-31\",\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
+        "Value": "{\n  \"%default\": {\n    \"wildcard_exposure\": \"prohibit_public_suffix\",\n    \"flow_log_verbosity\": \"full\",\n    \"see_thru\": null,\n    \"x509_crls\": \"ignore\"\n  }\n}\n"
       },
       "Type": "AWS::SSM::Parameter"
     },
