@@ -208,12 +208,6 @@
                   {
                     "Ref": "AWS::Region"
                   },
-                  ".amazonaws.com",
-                  ",",
-                  "ec2messages.",
-                  {
-                    "Ref": "AWS::Region"
-                  },
                   ".amazonaws.com"
                 ]
               ]
