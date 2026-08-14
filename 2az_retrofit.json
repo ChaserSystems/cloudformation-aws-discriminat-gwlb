@@ -26,204 +26,204 @@
   "Mappings": {
     "Region2ByolAmi": {
       "af-south-1": {
-        "x86": "ami-0492833bb076196e5"
+        "x86": "ami-092b395b9ed2580e4"
       },
       "ap-east-1": {
-        "x86": "ami-0d399616ce70fdd82"
+        "x86": "ami-00ef873764e5b9971"
       },
       "ap-east-2": {
-        "x86": "ami-032729855852176e7"
+        "x86": "ami-03b775d96d957b53d"
       },
       "ap-northeast-1": {
-        "x86": "ami-03a47b516875cf95d"
+        "x86": "ami-0ef4b910187e876b1"
       },
       "ap-northeast-2": {
-        "x86": "ami-0db1eb1fe0ac076b2"
+        "x86": "ami-0bf8bea624f8e5994"
       },
       "ap-northeast-3": {
-        "x86": "ami-009f4f0bc4f12ed0c"
+        "x86": "ami-0d97d29b2208b3804"
       },
       "ap-south-1": {
-        "x86": "ami-0389c2bcc343c35fd"
+        "x86": "ami-041ea67bb8816f927"
       },
       "ap-south-2": {
-        "x86": "ami-07320d2dd354b6633"
+        "x86": "ami-0e41016eaac6845ba"
       },
       "ap-southeast-1": {
-        "x86": "ami-06bc812b8be1f871c"
+        "x86": "ami-00a47a494bcbfb1b2"
       },
       "ap-southeast-2": {
-        "x86": "ami-0c91c64ff3526fb62"
+        "x86": "ami-0e30e7c83ff495cb1"
       },
       "ap-southeast-3": {
-        "x86": "ami-07351056bea7e2818"
+        "x86": "ami-021b63e5e12260f06"
       },
       "ap-southeast-4": {
-        "x86": "ami-0002d46457b6aa02e"
+        "x86": "ami-082e9b1846373f26c"
       },
       "ap-southeast-5": {
-        "x86": "ami-089e2fa404ed2121e"
+        "x86": "ami-08e2adcb15b40a365"
       },
       "ap-southeast-6": {
-        "x86": "ami-0681c307c35c3ce6c"
+        "x86": "ami-026b8c829e0255b71"
       },
       "ap-southeast-7": {
-        "x86": "ami-0173334ebb2e59617"
+        "x86": "ami-0997b171e98451a2e"
       },
       "ca-central-1": {
-        "x86": "ami-0721e297fec3b3899"
+        "x86": "ami-0aeac88566ca2f18e"
       },
       "ca-west-1": {
-        "x86": "ami-070919546bae0efb7"
+        "x86": "ami-0e7e8d2ec11056871"
       },
       "eu-central-1": {
-        "x86": "ami-0daeab0afbbf89363"
+        "x86": "ami-026c384b82ac4db05"
       },
       "eu-central-2": {
-        "x86": "ami-07fe876568d807032"
+        "x86": "ami-02e334450bb141582"
       },
       "eu-north-1": {
-        "x86": "ami-0dc9cc2b148519287"
+        "x86": "ami-0ea2d6a8891b7a7ee"
       },
       "eu-south-1": {
-        "x86": "ami-04fc6393c1ec818c4"
+        "x86": "ami-0c75c59077975f483"
       },
       "eu-south-2": {
-        "x86": "ami-0ba9bdbfdae0c6d74"
+        "x86": "ami-068a42b9b090fa818"
       },
       "eu-west-1": {
-        "x86": "ami-0cc508258ef759ae5"
+        "x86": "ami-02795222ec39c2886"
       },
       "eu-west-2": {
-        "x86": "ami-0fc0751a14630d012"
+        "x86": "ami-0eb23b9f1af4d7a17"
       },
       "eu-west-3": {
-        "x86": "ami-0e103c987d117d98d"
+        "x86": "ami-03dd07a3464ea0896"
       },
       "il-central-1": {
-        "x86": "ami-01ba2044dfd5fafba"
+        "x86": "ami-0c0866fb6227c058f"
       },
       "me-central-1": {
         "x86": "ami-06f6bd4c1fbcc305b"
       },
       "mx-central-1": {
-        "x86": "ami-03b19bc28c1f8cb19"
+        "x86": "ami-0888ab67dc10194d7"
       },
       "sa-east-1": {
-        "x86": "ami-05e5a1ff2ff97977c"
+        "x86": "ami-05efef2ff2daa839b"
       },
       "us-east-1": {
-        "x86": "ami-0265e97bb372b0f5a"
+        "x86": "ami-09441b7c8d7934c9d"
       },
       "us-east-2": {
-        "x86": "ami-07961fdf951cc25df"
+        "x86": "ami-0f3d33373343b040e"
       },
       "us-west-1": {
-        "x86": "ami-09c46c4a8adfa90f9"
+        "x86": "ami-04cd32aec76f226ec"
       },
       "us-west-2": {
-        "x86": "ami-05ac1918a0f35ead4"
+        "x86": "ami-02a3188de4b71fb9a"
       }
     },
     "Region2PaygAmi": {
       "af-south-1": {
-        "x86": "ami-00da4e448fb1139be"
+        "x86": "ami-0cdd01c02caaa7fe5"
       },
       "ap-east-1": {
-        "x86": "ami-00300ea564ab42c60"
+        "x86": "ami-0d3b9011e39aff040"
       },
       "ap-east-2": {
-        "x86": "ami-0b292f0dc3c16b8da"
+        "x86": "ami-0224635abfd39b392"
       },
       "ap-northeast-1": {
-        "x86": "ami-02af421214f83baba"
+        "x86": "ami-0ca0e73520ee99c85"
       },
       "ap-northeast-2": {
-        "x86": "ami-03099fd8b73626be7"
+        "x86": "ami-00bddd0ef588255d6"
       },
       "ap-northeast-3": {
-        "x86": "ami-0b9258695ec68e5e9"
+        "x86": "ami-010d601bd869a8bed"
       },
       "ap-south-1": {
-        "x86": "ami-012f8cda94de165da"
+        "x86": "ami-096b4738d87579c43"
       },
       "ap-south-2": {
-        "x86": "ami-0f8a01297e86ccf18"
+        "x86": "ami-0c0ab67aaaa749dc5"
       },
       "ap-southeast-1": {
-        "x86": "ami-02e125796522434c2"
+        "x86": "ami-0200053dc649f4970"
       },
       "ap-southeast-2": {
-        "x86": "ami-0934616ef83e96c17"
+        "x86": "ami-0621682948ee925d6"
       },
       "ap-southeast-3": {
-        "x86": "ami-0e5f843cfc3c8d017"
+        "x86": "ami-0ed09268f0b1812f9"
       },
       "ap-southeast-4": {
-        "x86": "ami-0fcac17362f448dcb"
+        "x86": "ami-081481a5e85d261eb"
       },
       "ap-southeast-5": {
-        "x86": "ami-0d54ced1ae6594394"
+        "x86": "ami-0783b9663a0ab848b"
       },
       "ap-southeast-6": {
-        "x86": "ami-048567276d5837c2b"
+        "x86": "ami-036479fec8dfd15f3"
       },
       "ap-southeast-7": {
-        "x86": "ami-028cdfe39d58b877e"
+        "x86": "ami-07629a066b8f3b30d"
       },
       "ca-central-1": {
-        "x86": "ami-0a14559f2bb2d1f5f"
+        "x86": "ami-0912c10d41e1e481a"
       },
       "ca-west-1": {
-        "x86": "ami-011d384ac8bfb56d4"
+        "x86": "ami-0f53d92fd434d4cac"
       },
       "eu-central-1": {
-        "x86": "ami-09960b92b24e1a437"
+        "x86": "ami-028fab1553fd5f177"
       },
       "eu-central-2": {
-        "x86": "ami-0abe95a0e5dae2493"
+        "x86": "ami-069621e0c5bb50ab7"
       },
       "eu-north-1": {
-        "x86": "ami-0291d576f738f7971"
+        "x86": "ami-082ece7e8da18224b"
       },
       "eu-south-1": {
-        "x86": "ami-0fef34c87c42761ae"
+        "x86": "ami-071a538f2593a4371"
       },
       "eu-south-2": {
-        "x86": "ami-0fc246e5b23f9e343"
+        "x86": "ami-0761bc26cdc9accac"
       },
       "eu-west-1": {
-        "x86": "ami-0b0f3810af0367a80"
+        "x86": "ami-01b86db0f4efc59e8"
       },
       "eu-west-2": {
-        "x86": "ami-00359d0662156dcb2"
+        "x86": "ami-0b37eba7349a65d83"
       },
       "eu-west-3": {
-        "x86": "ami-0a608597011655a22"
+        "x86": "ami-0a24da50f4a3a59b6"
       },
       "il-central-1": {
-        "x86": "ami-09aedeb2bb37fabb7"
+        "x86": "ami-0576e5d8f512e04fb"
       },
       "me-central-1": {
         "x86": "ami-068090c04a39585ba"
       },
       "mx-central-1": {
-        "x86": "ami-086b4b1ad6fecd579"
+        "x86": "ami-0f8914228c91c9701"
       },
       "sa-east-1": {
-        "x86": "ami-0848cbeb747bc8d0e"
+        "x86": "ami-024f9869fbac78f18"
       },
       "us-east-1": {
-        "x86": "ami-017fbdb35699d0578"
+        "x86": "ami-01f9f6c45c2c8573e"
       },
       "us-east-2": {
-        "x86": "ami-0d22a94c8b70b394d"
+        "x86": "ami-043507230cccb8e08"
       },
       "us-west-1": {
-        "x86": "ami-0021dd379613f0eae"
+        "x86": "ami-06826ff3de90fab7c"
       },
       "us-west-2": {
-        "x86": "ami-040d3a8ac897a8411"
+        "x86": "ami-04955556cd32e4038"
       }
     }
   },
@@ -702,7 +702,7 @@
         "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
-            "Description": "DiscrimiNAT Firewall itself to internet forwarding on behalf of other hosts",
+            "Description": "DiscrimiNAT itself to internet forwarding on behalf of other hosts",
             "FromPort": 0,
             "IpProtocol": "-1",
             "ToPort": 0
